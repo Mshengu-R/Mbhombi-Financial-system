@@ -21,7 +21,7 @@ public class AccountResponse {
     private String phone;
 
     @NotBlank(message = "Email is required")
-    @Email(message = "valid email format should be something like example@domain.com")
+    @Email(message = "Valid email format should be something like example@domain.com")
     private String email;
 
     @NotBlank(message = "Account holder name is required")
