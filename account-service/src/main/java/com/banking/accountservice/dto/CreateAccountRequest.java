@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.DecimalMin;
 
 @Data
@@ -29,6 +30,7 @@ public class CreateAccountRequest {
 
     @NotNull(message = "Initial deposit is required")
     @DecimalMin(value = "50", inclusive = true, message = "Initial deposit should be greater than or equal to R50")
+    @Positive(message = "Initial deposit must be positive")
     private BigDecimal initialDeposit;
 
 }

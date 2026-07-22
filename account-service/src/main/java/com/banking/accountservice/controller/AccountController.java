@@ -1,6 +1,9 @@
 package com.banking.accountservice.controller;
 
 import com.banking.accountservice.service.AccountService;
+import com.banking.accountservice.dto.CreateAccountRequest;
+import com.banking.accountservice.dto.AccountResponse;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -9,8 +12,6 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import com.banking.accountservice.dto.CreateAccountRequest;
-import com.banking.accountservice.dto.AccountResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,7 +52,7 @@ public class AccountController {
         return ResponseEntity.ok(accountService.getBalance(accountNumber));
     }
 
-
+   // and unblocking
     @PutMapping("/{accountNumber}/block")
     public ResponseEntity<String> blockAccount(
         @PathVariable String accountNumber) {
@@ -60,6 +61,7 @@ public class AccountController {
         return ResponseEntity.ok("Account blocked successfully");
     }
 
+    // for unblocking the account 
     @PutMapping("/{accountNumber}/unblock")
     public ResponseEntity<String> unblockAccount(
         @PathVariable String accountNumber) {
