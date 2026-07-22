@@ -12,6 +12,7 @@ import com.banking.accountservice.entity.AccountType;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class AccountResponse {
     
     private String id;
@@ -31,6 +32,8 @@ public class AccountResponse {
     private AccountStatus status;
 
     private BigDecimal balance;
+
+    private String Role;
 
     private BigDecimal dailyTransactionLimit;
 
