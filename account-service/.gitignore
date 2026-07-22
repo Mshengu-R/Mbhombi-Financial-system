@@ -31,3 +31,38 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Env files
+.env*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor swap/temp files
+*~
+*.swp
+*.swo
+*.tmp
+
+# Log and runtime files
+*.log
+hs_err_pid*
+*.pid
+*.seed
+*.retry
+*.dump
+
+# Java/Maven build artifacts
+target/
+build/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.par 
