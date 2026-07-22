@@ -16,7 +16,8 @@ WHERE THERE WOULD BE SERCIVES SUCH AS
 - CUSTOMER SERVICE
 - DATABASE SERVICE
 - NOTIFICATION SERVICE
-- TRANSACTION SERVICE
+- PAYMENT SERVICE
+- FRAUD DETECTION SERVICE
 
 AND THERE WILL ALSO BE FRONTEND
 
@@ -40,8 +41,8 @@ DOCKER FOR CONTAINERIZING
 # CLoud
 ??
 
-# Rate limmiting
-- Arcjet
+# API GATEWAY 
+- REDIS
 
 # Authentications and authorization
 - JSON WEB TOKEN
@@ -52,12 +53,24 @@ DOCKER FOR CONTAINERIZING
 - ADMINS CAN CHOOSE WHETHER THEY MAKE THEIR GROUPS PRIVATE OR PUBLIC 
 - IF PUBLIC THEN ANYBODY CAN SEE IT ON THE DASHBOARD THEN IF THE GROUP IS PRIVATE, IT MUST BE SEARCHED
 
+## SAGA 
+# STEP 1 - Deduct Balance
+- CALLED BY TRANSACTION SERVICE WHEN TRANSFER IS INITIATED
+# STEP 2 - Compesating transaction endpoint
+- CALLED BY TRANSACTION SERVICE IN TWO SCENARIOS
+1 - FRAUD DETECTION => REFUND SENDER
+2 - TRANSACTION COMPLETED => CREDIT RECIVER
+
 
 ## API
 # FOR AUTHENTICATING AND AUTHORIZING USERS
-- POST api/v1/auth/users/register -> FOR REGISTERING FOR BANKING 
-- POST api/v1/auth/users/sign-in -> FOR SIGNING IN AFTER REGISTERING
-- POST api/v1/auth/users/sign-out -> FOR SIGNING OUT
+# SAGA
 
-- GET api/v1/users/:id -> for getting all the users in a specific group
-- POST api/v1/users
+- POST api/v1/accounts/sign-up -> FOR CREATING AN ACCOUNT FOR BANKING 
+- POST api/v1/accounts/sign-in -> FOR SIGNING IN AFTER REGISTERING
+- POST api/v1/accounts/sign-out -> FOR SIGNING OUT
+
+- GET api/v1/accounts/:id -> for getting all the users in a specific group
+- GET api/v1/accounts/getBalance/:id
+- PUT api/v1/accounts/block/:id
+- GET api/v1/accounts/deductBal/:id
