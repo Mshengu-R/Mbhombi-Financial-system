@@ -8,10 +8,12 @@ import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import com.banking.accountservice.dto.CreateAccountRequest;
 import com.banking.accountservice.dto.AccountResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import java.math.BigDecimal;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,13 +28,14 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping
-    public ResponseEntity<String> createAccount(
-        @Valid @RequestBody CreateAccountRequest request) {
-        // log.info("Creating account for customer: {}", accountRequest.getCustomerId());
-        // String accountId = accountService.createAccount(accountRequest);
+    public ResponseEntity<AccountResponse> createAccount(
+        @Valid
+        @RequestBody
+        CreateAccountRequest request) {
+            // no logging here, because it will be implimeneted in the serivice file
      
         return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(accountService.createAccount(request));
+        .body(accountService.createAccount(request));
     }
 
 
