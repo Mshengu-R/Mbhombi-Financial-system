@@ -14,6 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 public class AccountEventConsumer {
 
     private final AccountService accountService;
+    
+    // Constructor injection for AccountService
+    // initializing the accountService variable with the provided AccountService instance
+    public AccountEventConsumer(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     // CREDITING THE RECIVER
     @KafkaListener(topics = "transaction.completed")
@@ -28,7 +34,7 @@ public class AccountEventConsumer {
                 log.info("Crediting account: {} amount: {}", reciverAccount, amount);
                 accountService.creditBalance(reciverAccount, amount);
 
-
+                // in case things like server errors occurs
             } catch (Exception e) {
                 // TODO: handle exception
                 log.error("Error crediting account: {}", e.getMessage());
