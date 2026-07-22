@@ -144,6 +144,16 @@ public void deductBalance(String accountNumber, BigDecimal amount) {
 // params accountnumber, amount
 public void creditBalance(String accountNumber, BigDecimal amount) {
 
+    log.info("Crediting {} to account: {}", amount, accountNumber);
+  Account account = accountRepository.findByAccountNumber(accountNumber)
+                    .orElseThrow(() -> new RuntimeException("Account not found"));
+
+                    account.setBalance(account.getBalance().add(amount));
+                    accountRepository.save(account);
+
+                    log.info("Balance Credited, New Balance: {}", account.getBalance());
+    
+
 }
 
 
