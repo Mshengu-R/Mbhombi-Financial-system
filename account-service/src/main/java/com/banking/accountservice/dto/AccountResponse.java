@@ -4,31 +4,35 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Email;
+import java.time.LocalDateTime;
+
+import com.banking.accountservice.entity.AccountStatus;
+import com.banking.accountservice.entity.AccountType;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class AccountResponse {
     
+    private String id;
 
     private String accountNumber;
 
-    private String accountType;
-
-    private String phone;
-
-    @NotBlank(message = "Email is required")
-    @Email(message = "Valid email format should be something like example@domain.com")
     private String email;
 
-    @NotBlank(message = "Account holder name is required")
+    private String bankName;
+    
+    private String phone;
+
     private String accountHolderName;
 
+    private AccountType accountType;
 
-    private BigDecimal initialDeposit;
+    private AccountStatus status;
 
+    private BigDecimal balance;
 
+    private BigDecimal dailyTransactionLimit;
+
+    private LocalDateTime createdAt;
 }
