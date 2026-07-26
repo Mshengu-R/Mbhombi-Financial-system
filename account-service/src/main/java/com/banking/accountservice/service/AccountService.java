@@ -12,8 +12,6 @@ import java.security.SecureRandom;
 import javax.management.RuntimeErrorException;
 
 import org.springframework.stereotype.Service;
-// import org.slf4j.Logger;
-// import org.slf4j.LoggerFactory;
 import com.banking.accountservice.entity.Account;
 import com.banking.accountservice.entity.AccountType;
 import com.banking.accountservice.entity.AccountStatus;
@@ -35,7 +33,7 @@ public class AccountService {
         // if an account already exists
         if (accountRepository.existsByEmail(request.getEmail())) {
             log.warn("Account with email {} already exists", request.getEmail());
-            throw new RuntimeException("Account with this email \"" + request.getEmail() + "\" already exists");
+            throw new RuntimeException("Account with email \"" + request.getEmail() + "\" already exists");
         }
 
         Account account = new Account();
@@ -124,13 +122,15 @@ public void deductBalance(String accountNumber, BigDecimal amount) {
                     .orElseThrow(() -> new RuntimeException("Account not found"));
 
                     if(account.getStatus() != AccountStatus.ACTIVE) {
-                        throw new RuntimeException("Account \""+ accountNumber + "\" is active or doesn't exist. If this is unusual please contact our helpline");
-
+                        log.warn("type:error, account-number: {}, error: Not active or does not exist", accountNumber);
+                        throw new RuntimeException("Account \""+ accountNumber + "\" is not active or does not exist. If this is unusual please contact our helpline");
+                        // log.warn("Account not active or doesn't exist");
 
                     }
 
                     if(account.getBalance().compareTo(amount) <= 0) {
                         throw new RuntimeException("Insufficient funds for account "+ accountNumber);
+                        // log.warn("error: account");
 
                     }
 
