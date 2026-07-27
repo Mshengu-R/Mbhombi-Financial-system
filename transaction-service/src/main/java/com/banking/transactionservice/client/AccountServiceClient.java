@@ -15,5 +15,11 @@ public interface AccountServiceClient {
          @PathVariable String accountNumber,
          @RequestParam BigDecimal amount);
 
+         // for crediting back the reciver or the recipient when
+    @PutMapping("/api/v1/accounts/{accountNumber}/credit")
+    String creditBalance(
+        @PathVariable String accountNumber,
+        @RequestParam BigDecimal amount
+       );
 
 }
