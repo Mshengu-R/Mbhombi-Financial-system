@@ -16,6 +16,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO returned to clients representing a transaction's persisted state.
+ * Fields mirror the Transaction entity but are safe to expose over the API.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

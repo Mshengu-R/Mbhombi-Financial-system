@@ -19,6 +19,12 @@ import com.banking.transactionservice.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * REST controller exposing transaction endpoints (transfer, query, OTP verification).
+ *
+ * The controller delegates business work to TransactionService and focuses on HTTP concerns
+ * (request validation, status codes and mapping to DTOs).
+ */
 @RestController
 @RequestMapping("/api/v1/transactions")
 @Slf4j

@@ -1,20 +1,19 @@
 package com.banking.accountservice.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 import com.banking.accountservice.entity.AccountStatus;
 import com.banking.accountservice.entity.AccountType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class AccountResponse {
-    
+
     private String id;
 
     private String accountNumber;
@@ -22,7 +21,7 @@ public class AccountResponse {
     private String email;
 
     private String bankName;
-    
+
     private String phone;
 
     private String accountHolderName;
@@ -32,8 +31,6 @@ public class AccountResponse {
     private AccountStatus status;
 
     private BigDecimal balance;
-
-    private String Role;
 
     private BigDecimal dailyTransactionLimit;
 

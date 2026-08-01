@@ -117,14 +117,18 @@ public class PayFastService {
         return sha256Hex(query.toString());
     }
 
+    // Validates the signature of the incoming PayFast webhook payload
     public boolean isSignatureValid(Map<String, Object> payload) {
+        
         String receivedSignature = String.valueOf(payload.getOrDefault("signature", ""));
+        
         if (receivedSignature.isBlank()) {
             return false;
         }
 
         Map<String, String> params = new LinkedHashMap<>();
         payload.forEach((key, value) -> {
+
             if (!"signature".equalsIgnoreCase(key) && value != null) {
                 params.put(key, String.valueOf(value));
             }
@@ -134,6 +138,8 @@ public class PayFastService {
         return receivedSignature.equalsIgnoreCase(expectedSignature);
     }
 
+    // Helper method to compute SHA-256 hash and return it as a hexadecimal string
+  
     private String sha256Hex(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

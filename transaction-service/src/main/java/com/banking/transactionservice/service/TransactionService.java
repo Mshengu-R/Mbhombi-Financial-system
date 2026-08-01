@@ -24,11 +24,21 @@ import com.banking.transactionservice.repository.TransactionRepository;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Service responsible for orchestrating transactions (SAGA initiator responsibilities).
+ *
+ * Responsibilities:
+ * - Interact with the AccountService (via Feign) to debit/credit accounts
+ * - Persist Transaction entities
+ * - Publish domain events to Kafka for downstream processing (fraud detection, completion, refunds)
+ * - Use Redis for transient state (OTP storage)
+ *
+ * The implementation intentionally keeps SAGA actions idempotent where practical and emits events
+ * for the rest of the process so other services can react asynchronously.
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
-
-
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -44,6 +54,21 @@ public class TransactionService {
 
     // SAGA STEP 1
     // This method initiates a transfer transaction by deducting the amount from the sender's account, saving the transaction as processing, and publishing a TransactionInitiatedEvent to Kafka for further processing.
+    /**
+     * Initiates a transfer SAGA.
+     *
+     * Steps (high level):
+     * 1. Request the Account service to deduct the sender's balance
+     * 2. Persist a Transaction with status PROCCESSING
+     * 3. Publish a TransactionInitiatedEvent to Kafka so downstream services (fraud check, notification, credit)
+     *    can continue the SAGA.
+     *
+     * The method returns the persisted Transaction as a TransactionResponse. Errors from downstream services
+     * (e.g., account debit failures) should be handled by the caller or by adding try/catch and compensation logic.
+     *
+     * @param request transfer details (sender, receiver, amount, description)
+     * @return persisted transaction as response DTO
+     */
     public TransactionResponse transfer(TransactionRequest request){
 
 
@@ -109,7 +134,8 @@ public TransactionResponse getTransaction(String transactionId){
 // find by sender account number history
 public List<TransactionResponse> getTransactionHistory(String accountNumber){
 
-    return transactionRepository.findBySenderAccountNumberOderedByCreatedAtDesc(accountNumber)
+        // Fetch from repository using Spring Data generated query method (ordered newest-first).
+        return transactionRepository.findBySenderAccountNumberOrderByCreatedAtDesc(accountNumber)
     .stream()
     .map(this::mapToResponse)
     .collect(Collectors.toList());

@@ -16,10 +16,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import java.math.BigDecimal;
 import org.springframework.web.bind.annotation.RequestBody;
+import java.math.BigDecimal;
 
 
+/**
+ * REST controller exposing account operations such as account creation, balance lookup,
+ * and account status changes.
+ */
 @RestController
 @RequestMapping("/api/v1/accounts")
 @Slf4j
@@ -33,10 +37,8 @@ public class AccountController {
         @Valid
         @RequestBody
         CreateAccountRequest request) {
-            // no logging here, because it will be implimeneted in the serivice file
-     
         return ResponseEntity.status(HttpStatus.CREATED)
-        .body(accountService.createAccount(request));
+                .body(accountService.createAccount(request));
     }
 
 
@@ -52,7 +54,7 @@ public class AccountController {
         return ResponseEntity.ok(accountService.getBalance(accountNumber));
     }
 
-   // and unblocking
+   // Account block/unblock endpoints
     @PutMapping("/{accountNumber}/block")
     public ResponseEntity<String> blockAccount(
         @PathVariable String accountNumber) {
@@ -73,9 +75,8 @@ public class AccountController {
     // SAGA STEP 1
     @PutMapping("/{accountNumber}/deduct")
     public ResponseEntity<String> deductBalance(
-
-         @PathVariable String accountNumber,
-         @RequestParam BigDecimal amount) {
+            @PathVariable String accountNumber,
+            @RequestParam BigDecimal amount) {
 
         accountService.deductBalance(accountNumber, amount);
         return ResponseEntity.ok("Balance deducted successfully");
@@ -84,13 +85,12 @@ public class AccountController {
     // SAGA STEP 2
     @PutMapping("/{accountNumber}/credit")
     public ResponseEntity<String> creditBalance(
+            @PathVariable String accountNumber,
+            @RequestParam BigDecimal amount) {
 
-        @PathVariable String accountNumber,
-        @RequestParam BigDecimal amount) {
-
-            accountService.creditBalance(accountNumber, amount);
-            return ResponseEntity.ok("Balance has been credited to the receiver successfully");
-        }
+        accountService.creditBalance(accountNumber, amount);
+        return ResponseEntity.ok("Balance has been credited to the receiver successfully");
+    }
 
     
 
