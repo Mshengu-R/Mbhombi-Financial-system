@@ -1,13 +1,13 @@
-package com.banking.accountservices;
+package com.banking.communityaccountservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AccountServicesApplication {
+public class CommunityAccountServicesApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AccountServicesApplication.class, args);
+		SpringApplication.run(CommunityAccountServicesApplication.class, args);
 	}
 
 }
