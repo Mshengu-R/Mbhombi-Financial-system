@@ -1,0 +1,13 @@
+target/
+**/target/
+*.log
+*.tmp
+*.swp
+*.swo
+*.iml
+.idea/
+.vscode/
+.git/
+.env
+Dockerfile
+.dockerignore

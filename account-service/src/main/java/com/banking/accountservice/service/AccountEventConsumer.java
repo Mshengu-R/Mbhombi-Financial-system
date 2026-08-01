@@ -28,16 +28,23 @@ public class AccountEventConsumer {
 
             try {
     
-                String reciverAccount = (String) payload.get("recieverAccountNumber");
+                String receiverAccountNumber = (String) payload.get("receiverAccountNumber");
+               // Handle case where the key might be misspelled in the payload
+                if (receiverAccountNumber == null) {
+                    receiverAccountNumber = (String) payload.get("recieverAccountNumber");
+                }
+                if (receiverAccountNumber == null || receiverAccountNumber.isBlank()) {
+                    log.warn("Skipping credit event because receiverAccountNumber is missing in payload: {}", payload);
+                    return;
+                }
                 BigDecimal amount = new BigDecimal(payload.get("amount").toString());
 
-                log.info("Crediting account: {} amount: {}", reciverAccount, amount);
-                accountService.creditBalance(reciverAccount, amount);
+                log.info("Crediting account: {} amount: {}", receiverAccountNumber, amount);
+                accountService.creditBalance(receiverAccountNumber, amount);
 
                 // in case things like server errors occurs
             } catch (Exception e) {
-                // TODO: handle exception
-                log.error("Error crediting account: {}", e.getMessage());
+                log.error("Error crediting account", e);
             }
     }
 
@@ -47,14 +54,11 @@ public class AccountEventConsumer {
         @Payload Map<String, Object> payload
     ){
         try {
-            
             String accountNumber = (String) payload.get("accountNumber");
             log.warn("Fraud detected - blocking account: {}", accountNumber);
-
             accountService.blockAccount(accountNumber);
-
         } catch (Exception e) {
-            // TODO: handle exception
+            log.error("Error handling fraud detected event", e);
         }
     }
 }

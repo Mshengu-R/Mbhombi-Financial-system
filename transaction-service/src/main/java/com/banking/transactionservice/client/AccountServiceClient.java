@@ -12,14 +12,14 @@ public interface AccountServiceClient {
     
     @PutMapping("/api/v1/accounts/{accountNumber}/deduct")
     String deductBalance(
-         @PathVariable String accountNumber,
-         @RequestParam BigDecimal amount);
+         @PathVariable("accountNumber") String accountNumber,
+         @RequestParam("amount") BigDecimal amount);
 
          // for crediting back the reciver or the recipient when
     @PutMapping("/api/v1/accounts/{accountNumber}/credit")
     String creditBalance(
-        @PathVariable String accountNumber,
-        @RequestParam BigDecimal amount
+        @PathVariable("accountNumber") String accountNumber,
+        @RequestParam("amount") BigDecimal amount
        );
 
 }

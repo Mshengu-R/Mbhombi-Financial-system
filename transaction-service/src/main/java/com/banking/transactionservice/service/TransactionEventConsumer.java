@@ -100,8 +100,8 @@ public class TransactionEventConsumer {
 
 
         } catch (Exception e) {
-            // TODO: handle exception
-        log.info("Error handling verification required", e.getMessage());
+            // Log the full exception to help debugging in runtime environments
+            log.error("Error handling verification required: {}", e.getMessage(), e);
         }
     }
 
@@ -117,7 +117,7 @@ public class TransactionEventConsumer {
 
             } catch (Exception e) {
                 // TODO: handle exception
-                log.error("Error processing fraud chck result: {}", e.getMessage());
+                log.error("Error processing fraud check result: {}", e.getMessage(), e);
             }
     }
 }

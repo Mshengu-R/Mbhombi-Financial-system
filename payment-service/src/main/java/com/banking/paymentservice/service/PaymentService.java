@@ -67,7 +67,9 @@ public class PaymentService {
 
     @Transactional
     public void handleWebhook(Map<String, Object> payload) {
+        
         String paymentId = String.valueOf(payload.getOrDefault("m_payment_id", payload.getOrDefault("payment_id", "")));
+       
         if (paymentId.isBlank()) {
             throw new IllegalArgumentException("Missing payment identifier in PayFast webhook");
         }

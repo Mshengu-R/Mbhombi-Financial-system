@@ -9,6 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for initiating a transaction request.
+ * Contains validation annotations to be enforced by the controller.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

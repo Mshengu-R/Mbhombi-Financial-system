@@ -14,12 +14,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * JPA entity representing a financial transaction. Stored fields include sender/receiver,
+ * amount, type, status and timestamps. Enum fields are persisted as their String names so
+ * they are readable in the database.
+ */
 @Entity
 @Table(name = "transactions")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class Transaction {
     
     @Id

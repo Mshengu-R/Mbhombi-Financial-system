@@ -33,8 +33,8 @@ public class Account {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private String BankName;
+    @Column(name = "bank_name", nullable = false)
+    private String bankName;
     
     @Column(nullable = false)
     private String phone;
@@ -51,8 +51,6 @@ public class Account {
 
     @Column(nullable = false, precision = 15, scale = 4)
     private BigDecimal balance;
-
-    // private BigDecimal interest;
 
     @Column(nullable = false, precision = 15, scale = 4)
     private BigDecimal dailyTransactionLimit;
