@@ -1,10 +1,10 @@
-package com.banking.accountservices;
+package com.banking.communityaccountservices;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AccountServicesApplicationTests {
+class CommunityAccountServicesApplicationTests {
 
 	@Test
 	void contextLoads() {
