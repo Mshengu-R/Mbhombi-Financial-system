@@ -19,83 +19,84 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.math.BigDecimal;
 
-
-
 /**
- * REST controller exposing account operations such as account creation, balance lookup,
- * and account status changes.
+ * REST controller for community account operations such as creating a group,
+ * joining a private group with a code, leaving a group, and transferring funds.
  */
 @RestController
-@RequestMapping("/api/v1/accounts")
+@RequestMapping("/api/v1/community-accounts")
 @Slf4j
 @RequiredArgsConstructor
 public class CommunityAccountController {
-    
-    private final CommunityAccountService accountService;
+
+    private final CommunityAccountService communityAccountService;
 
     @PostMapping
     public ResponseEntity<CommunityAccountResponse> createAccount(
-        @Valid
-        @RequestBody
-        CommunityCreateAccountRequest request) {
+        @Valid @RequestBody CommunityCreateAccountRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(accountService.createAccount(request));
+                .body(communityAccountService.createAccount(request));
     }
 
-
     @GetMapping("/{accountNumber}")
-    public ResponseEntity<CommunityAccountResponse> getAccount(
-        @PathVariable String accountNumber) {
-        return ResponseEntity.ok(accountService.getAccount(accountNumber));
+    public ResponseEntity<CommunityAccountResponse> getAccount(@PathVariable String accountNumber) {
+        return ResponseEntity.ok(communityAccountService.getAccount(accountNumber));
     }
 
     @GetMapping("/{accountNumber}/balance")
-    public ResponseEntity<BigDecimal> getBalance(
-        @PathVariable String accountNumber) {
-        return ResponseEntity.ok(accountService.getBalance(accountNumber));
+    public ResponseEntity<BigDecimal> getBalance(@PathVariable String accountNumber) {
+        return ResponseEntity.ok(communityAccountService.getBalance(accountNumber));
     }
 
-   // Account block/unblock endpoints
+    @PutMapping("/{accountNumber}/join")
+    public ResponseEntity<CommunityAccountResponse> joinCommunity(
+            @PathVariable @Valid String accountNumber,
+            @RequestParam String memberName,
+            @RequestParam(required = false) String joinCode) {
+        return ResponseEntity.ok(communityAccountService.joinCommunity(accountNumber, memberName, joinCode));
+    }
+
+    @PutMapping("/{accountNumber}/leave")
+    public ResponseEntity<CommunityAccountResponse> leaveCommunity(
+            @PathVariable @Valid String accountNumber,
+            @RequestParam String memberName) {
+        return ResponseEntity.ok(communityAccountService.leaveCommunity(accountNumber, memberName));
+    }
+
     @PutMapping("/{accountNumber}/block")
-    public ResponseEntity<String> blockAccount(
-        @PathVariable String accountNumber) {
-
-        accountService.blockAccount(accountNumber);
-        return ResponseEntity.ok("Account blocked successfully");
+    public ResponseEntity<String> blockAccount(@PathVariable @Valid String accountNumber) {
+        communityAccountService.blockAccount(accountNumber);
+        return ResponseEntity.ok("Community account blocked successfully");
     }
 
-    // for unblocking the account 
     @PutMapping("/{accountNumber}/unblock")
-    public ResponseEntity<String> unblockAccount(
-        @PathVariable String accountNumber) {
-
-        accountService.unblockAccount(accountNumber);
-        return ResponseEntity.ok("Account unblocked successfully");
+    public ResponseEntity<String> unblockAccount(@PathVariable @Valid String accountNumber) {
+        communityAccountService.unblockAccount(accountNumber);
+        return ResponseEntity.ok("Community account unblocked successfully");
     }
 
-    // SAGA STEP 1
     @PutMapping("/{accountNumber}/deduct")
     public ResponseEntity<String> deductBalance(
-            @PathVariable String accountNumber,
+            @PathVariable @Valid String accountNumber,
             @RequestParam BigDecimal amount) {
-
-        accountService.deductBalance(accountNumber, amount);
+        communityAccountService.deductBalance(accountNumber, amount);
         return ResponseEntity.ok("Balance deducted successfully");
     }
 
-    // SAGA STEP 2
     @PutMapping("/{accountNumber}/credit")
     public ResponseEntity<String> creditBalance(
-            @PathVariable String accountNumber,
+            @PathVariable @Valid String accountNumber,
             @RequestParam BigDecimal amount) {
-
-        accountService.creditBalance(accountNumber, amount);
-        return ResponseEntity.ok("Balance has been credited to the receiver successfully");
+        communityAccountService.creditBalance(accountNumber, amount);
+        return ResponseEntity.ok("Balance has been credited successfully");
     }
 
-    
-
-        
-
+    @PutMapping("/{accountNumber}/claim")
+    public ResponseEntity<CommunityAccountResponse> claimFunds(
+            @PathVariable @Valid String accountNumber,
+            @RequestParam String memberName,
+            @RequestParam BigDecimal amount) {
+        return ResponseEntity.ok(communityAccountService.claimFunds(accountNumber, memberName, amount));
+    }
 }
 

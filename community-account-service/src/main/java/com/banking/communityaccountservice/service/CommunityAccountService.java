@@ -15,9 +15,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Service containing business operations for account management.
+ * Service containing business operations for community accounts.
  */
 @Service
 @Slf4j
@@ -32,55 +34,84 @@ public class CommunityAccountService {
     private final CommunityAccountRepository accountRepository;
 
     /**
-     * Create a new account from the incoming request.
-     *
-     * @param request request body payload with account information
-     * @return created account details
+     * Create a new community account from the incoming request.
      */
     @Transactional
     public CommunityAccountResponse createAccount(CommunityCreateAccountRequest request) {
-        // log.info("Creating account for email={}", request.getEmail());
-
-        // if (accountRepository.existsByEmail(request.getEmail())) {
-        //     log.warn("Account with email {} already exists", request.getEmail());
-        //     throw new ResponseStatusException(HttpStatus.CONFLICT,
-        //             "Account with email \"" + request.getEmail() + "\" already exists");
-        // }
-
         CommunityAccountType accountType = parseAccountType(request.getAccountType());
         CommunityAccount account = buildAccount(request, accountType);
 
         CommunityAccount savedAccount = accountRepository.save(account);
-        log.info("Account created accountNumber={}", savedAccount.getAccountNumber());
+        log.info("Community account created accountNumber={}", savedAccount.getAccountNumber());
         return mapToResponse(savedAccount);
+    }
+
+    /**
+     * Allow a user to join a community account. Private communities require a seven-digit join code.
+     */
+    @Transactional
+    public CommunityAccountResponse joinCommunity(String accountNumber, String memberName, String joinCode) {
+        CommunityAccount account = findAccountByNumber(accountNumber);
+        validateAccountActive(accountNumber, account);
+
+        if (account.isPrivateCommunity()) {
+            if (joinCode == null || !joinCode.equals(account.getJoinCode())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid join code for this private community.");
+            }
+        }
+
+        if (memberName == null || memberName.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member name is required.");
+        }
+
+        Set<String> members = account.getMembers() == null ? new HashSet<>() : new HashSet<>(account.getMembers());
+        members.add(memberName.trim());
+        account.setMembers(members);
+        return mapToResponse(accountRepository.save(account));
+    }
+
+    /**
+     * Allow a member to leave the community account.
+     */
+    @Transactional
+    public CommunityAccountResponse leaveCommunity(String accountNumber, String memberName) {
+        CommunityAccount account = findAccountByNumber(accountNumber);
+        if (memberName != null && !memberName.isBlank()) {
+            Set<String> members = account.getMembers() == null ? new HashSet<>() : new HashSet<>(account.getMembers());
+            members.remove(memberName.trim());
+            account.setMembers(members);
+        }
+        return mapToResponse(accountRepository.save(account));
     }
 
     private CommunityAccountType parseAccountType(String accountTypeName) {
         if (accountTypeName == null || accountTypeName.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Account type is required.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account type is required.");
         }
         try {
             return CommunityAccountType.valueOf(accountTypeName.toUpperCase());
         } catch (IllegalArgumentException ex) {
             log.warn("Invalid account type {}", accountTypeName);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Invalid account type: " + accountTypeName);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid account type: " + accountTypeName);
         }
     }
 
-    // Builds an Account entity from the request and account type.
     private CommunityAccount buildAccount(CommunityCreateAccountRequest request, CommunityAccountType accountType) {
         CommunityAccount account = new CommunityAccount();
-        account.setAccountHolderName(request.getAccountHolderName());
-        // account.setEmail(request.getEmail());
-        // account.setPhone(request.getPhone());
+        account.setName(request.getName());
+        account.setCreatorName(request.getCreatorName());
+        account.setDescription(request.getDescription());
+        account.setRulesDescription(request.getRulesDescription());
         account.setBankName(DEFAULT_BANK_NAME);
         account.setAccountType(accountType);
         account.setOtherType(accountType == CommunityAccountType.OTHER ? request.getOtherType() : null);
+        account.setPrivateCommunity(request.isPrivateCommunity());
+        account.setJoinCode(request.isPrivateCommunity() ? normalizeJoinCode(request.getJoinCode()) : null);
         account.setStatus(CommunityAccountStatus.ACTIVE);
         account.setBalance(request.getInitialDeposit());
         account.setAccountNumber(generateAccountNumber());
+        account.setMembers(new HashSet<>());
+        account.getMembers().add(request.getCreatorName());
         account.setDailyTransactionLimit(accountType == CommunityAccountType.STOKVEL
                 ? SAVINGS_TRANSACTION_LIMIT
                 : DEFAULT_TRANSACTION_LIMIT);
@@ -90,12 +121,18 @@ public class CommunityAccountService {
     private CommunityAccountResponse mapToResponse(CommunityAccount account) {
         CommunityAccountResponse response = new CommunityAccountResponse();
         response.setId(account.getId());
+        response.setName(account.getName());
+        response.setDisplayName(account.getDisplayName());
+        response.setCreatorName(account.getCreatorName());
+        response.setDescription(account.getDescription());
+        response.setRulesDescription(account.getRulesDescription());
         response.setAccountNumber(account.getAccountNumber());
-        response.setAccountHolderName(account.getAccountHolderName());
-        // response.setEmail(account.getEmail());
-        // response.setPhone(account.getPhone());
         response.setBankName(account.getBankName());
+        response.setOtherType(account.getOtherType());
         response.setAccountType(account.getAccountType());
+        response.setPrivateCommunity(account.isPrivateCommunity());
+        response.setJoinCode(account.getJoinCode());
+        response.setMembers(account.getMembers());
         response.setStatus(account.getStatus());
         response.setBalance(account.getBalance());
         response.setDailyTransactionLimit(account.getDailyTransactionLimit());
@@ -158,6 +195,29 @@ public class CommunityAccountService {
         log.info("Credit successful. New balance for account {} is {}", accountNumber, account.getBalance());
     }
 
+    /**
+     * Allow a member of the community to claim funds from the pooled account.
+     */
+    @Transactional
+    public CommunityAccountResponse claimFunds(String accountNumber, String memberName, BigDecimal amount) {
+        CommunityAccount account = findAccountByNumber(accountNumber);
+        validateAccountActive(accountNumber, account);
+        validateAmount(amount, "Claim amount must be greater than zero.");
+
+        if (memberName == null || memberName.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member name is required.");
+        }
+
+        Set<String> members = account.getMembers() == null ? new HashSet<>() : new HashSet<>(account.getMembers());
+        if (!members.contains(memberName.trim())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member is not part of this community account.");
+        }
+
+        validateSufficientBalance(account, amount);
+        account.setBalance(account.getBalance().subtract(amount));
+        return mapToResponse(accountRepository.save(account));
+    }
+
     private void validateAccountActive(String accountNumber, CommunityAccount account) {
         if (account.getStatus() != CommunityAccountStatus.ACTIVE) {
             log.warn("Attempted operation on non-active account={}", accountNumber);
@@ -180,12 +240,23 @@ public class CommunityAccountService {
         }
     }
 
+    private String normalizeJoinCode(String joinCode) {
+        if (joinCode == null || joinCode.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Private community join code is required.");
+        }
+        String normalized = joinCode.trim();
+        if (normalized.length() != 7 || !normalized.matches("\\d+")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Join code must be exactly 7 digits.");
+        }
+        return normalized;
+    }
+
     private String generateAccountNumber() {
-        String accountNumber;
+        String communityAccountNumber;
         do {
             long number = Math.abs(secureRandom.nextLong() % 1000000000000L);
-            accountNumber = String.format("%012d", number);
-        } while (accountRepository.existsByAccountNumber(accountNumber));
-        return accountNumber;
+            communityAccountNumber = String.format("%012d", number);
+        } while (accountRepository.existsByAccountNumber(communityAccountNumber));
+        return communityAccountNumber;
     }
 }
