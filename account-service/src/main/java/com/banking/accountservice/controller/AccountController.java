@@ -32,9 +32,9 @@ public class AccountController {
     
     private final AccountService accountService;
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<AccountResponse> createAccount(
-        @Valid
+        // @Valid
         @RequestBody
         CreateAccountRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)

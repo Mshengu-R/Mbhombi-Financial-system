@@ -18,11 +18,9 @@ public class AccountResponse {
 
     private String accountNumber;
 
-    private String email;
+    private String userId;
 
     private String bankName;
-
-    private String phone;
 
     private String accountHolderName;
 
@@ -31,6 +29,8 @@ public class AccountResponse {
     private AccountStatus status;
 
     private BigDecimal balance;
+
+    private String pin;
 
     private BigDecimal dailyTransactionLimit;
 

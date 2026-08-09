@@ -30,9 +30,6 @@ public class Account {
     @Column(nullable = false, unique = true)
     private String accountNumber;
 
-    @Column(nullable = false)
-    private String email;
-
     @Column(name = "bank_name", nullable = false)
     private String bankName;
     
@@ -42,12 +39,18 @@ public class Account {
     @Column(nullable = false)
     private String accountHolderName;
 
+    @Column(nullable = false)
+    private String userId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AccountType accountType;
 
     @Column(nullable = false)
     private AccountStatus status;
+
+    @Column(nullable = false, precision = 4)
+    private BigDecimal pin;
 
     @Column(nullable = false, precision = 15, scale = 4)
     private BigDecimal balance;
