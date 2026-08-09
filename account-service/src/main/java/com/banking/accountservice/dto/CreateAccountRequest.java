@@ -18,15 +18,17 @@ public class CreateAccountRequest {
     @NotBlank(message = "Account holder name is required")
     private String accountHolderName;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    private String email;
+    @NotNull(message = "UserId is required")
+    private String userId;
 
     @NotBlank(message = "Phone number is required")
     private String phone;
 
     @NotBlank(message = "Account type is required")
     private String accountType;
+
+    @NotBlank(message = "Pin is required")
+    private String pin;
 
     @NotNull(message = "Initial deposit is required")
     @DecimalMin(value = "50", inclusive = true, message = "Initial deposit should be greater than or equal to R50")
