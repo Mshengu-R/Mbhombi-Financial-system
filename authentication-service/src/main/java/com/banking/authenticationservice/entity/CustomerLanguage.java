@@ -1,6 +1,6 @@
 package com.banking.authenticationservice.entity;
 
-public enum UserLanguage {
+public enum CustomerLanguage {
     SPANISH,
     ENGLISH,
     XITSONGA,

@@ -21,7 +21,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "customers")
+@Table( name = "customer_Profile")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -37,6 +37,9 @@ public class Customer {
     @Column(nullable = false, unique = true)
     private String phone;
 
+    @Column(nullable = false, unique = true)
+    private String username;
+    
     @Column(nullable = false)
     private BigDecimal idno;
 
@@ -45,6 +48,12 @@ public class Customer {
     private CustomerTitle title;
 
     @Column(nullable = false)
+    private String firstName;
+    
+    @Column(nullable = true)
+    private String secondName;
+    
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
@@ -52,7 +61,6 @@ public class Customer {
 
     @Column(nullable = false)
     private Date dateOfBirth;
-
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -1,6 +1,6 @@
 package com.banking.authenticationservice.entity;
 
-public enum UserRole {
+public enum CustomerRole {
     CUSTOMER,
     HELPDESK,
     ADMIN,

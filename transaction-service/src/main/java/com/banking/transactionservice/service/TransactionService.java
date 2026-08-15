@@ -82,7 +82,8 @@ public class TransactionService {
         // DEDUCT FROM SENDER
         accountServiceClient.deductBalance(
             request.getSenderAccountNumber(),
-            request.getAmount());
+            request.getAmount()
+        );
 
     
 
@@ -95,8 +96,10 @@ public class TransactionService {
         transaction.setStatus(TransactionStatus.PROCCESSING);
         transaction.setDescription(request.getDescription());
         transaction.setReferenceNumber(UUID.randomUUID().toString()); // generated reference number
+        transaction.setCreatedAt(LocalDateTime.now());
 
         Transaction savedTransaction = transactionRepository.save(transaction);
+
         log.info("Transaction saved as PROCCESSING: {}", savedTransaction.getId());
 
         // Publish the initiated event to kafka for fraud detection SAGA STEP 2
@@ -108,7 +111,10 @@ public class TransactionService {
             savedTransaction.getDescription()
         );
 
-        kafkaTemplate.send(TRANSACTION_INITIATED_TOPIC, savedTransaction.getId(), event);
+        kafkaTemplate.send(  TRANSACTION_INITIATED_TOPIC, // topic name
+                             savedTransaction.getId(), // key for partitioning
+                             event  ); // event payload
+
         log.info("SAGA STEP 2 - TransactionInitiatedEvent published: {}", savedTransaction.getId());
 
         return mapToResponse(savedTransaction);
@@ -184,7 +190,6 @@ public TransactionResponse verifyOTP(String transactionID, String otp) {
 
 
     private void completeTransaction(Transaction transaction) {
-    // TODO Auto-generated method stub
 
     transaction.setStatus(TransactionStatus.COMPLETED);
     transaction.setCompletedAt(LocalDateTime.now());
@@ -205,8 +210,16 @@ log.info("SAGA COMPLETED - Transaction {} completed", transaction.getId());
 }
 
 
+    /*
+    * This method handles the scenario where a transaction is flagged for fraud.
+    * 
+    * It publishes a fraud detection event to Kafka,
+    *  indicating that the account should be blocked,
+    *  and then calls the compensation method to refund the sender's account.
+    * 
+    * The method logs relevant information about the fraud detection and compensation process.
+    */ 
     private void blockAccountAndcompesate(Transaction transaction, String reason) {
-    // TODO Auto-generated method stub
     // publish fraud detection event
     Map<String, Object> fraudEvent = new HashMap<>();
     fraudEvent.put("transactionId", transaction.getId());
@@ -278,7 +291,6 @@ private TransactionResponse mapToResponse(Transaction transaction) {
 
 
 public void processCleanResult(String transactionId) {
-    // TODO Auto-generated method stub
 
     Transaction transaction = transactionRepository.findById(transactionId)
     .orElseThrow(()-> new RuntimeException(

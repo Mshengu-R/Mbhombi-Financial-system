@@ -1,6 +1,6 @@
 package com.banking.authenticationservice.entity;
 
-public enum UserTitle {
+public enum CustomerTitle {
     MR,
     DR,
     MISS,

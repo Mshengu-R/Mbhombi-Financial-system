@@ -14,62 +14,74 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.GenerationType;
 
 @Entity
+@Table( name = "customer_Profile")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCredentials {
+public class Customer {
 
-   @Id
+ 
+    @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+    
+    @Column(nullable = false)
+    private String firstName;
+    
+    @Column(nullable = true)
+    private String secondName;
+    
+    @Column(nullable = false)
+    private String name;
 
+    @Column(nullable = false)
+    private String surname;
+    
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, unique = true)
     private String phone;
 
+    @Column(nullable = false, unique = true)
+    private String username;
+    
     @Column(nullable = false)
     private BigDecimal idno;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserTitle title;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private String surname;
+    private CustomerTitle title;
 
     @Column(nullable = false)
     private Date dateOfBirth;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole role;
+    private CustomerRole role;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserEnthnicity ethnicity;
+    private CustomerEthnicity ethnicity;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserGender gender;
+    private CustomerGender gender;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserCountry country;
+    private CustomerCountry country;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserLanguage customerLanguage;
+    private CustomerLanguage customerLanguage;
 
     @Column(nullable = false)
     private ArrayList<String> homeAddress = new ArrayList<>();
@@ -79,9 +91,6 @@ public class UserCredentials {
   
     @Column(nullable = false)
     private String password;
-
-    @Column(nullable = false)
-    private String confirmPassword;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

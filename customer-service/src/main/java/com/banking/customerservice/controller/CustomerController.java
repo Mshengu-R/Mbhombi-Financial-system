@@ -19,17 +19,18 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v1/profiles")
 @RequiredArgsConstructor
 @Slf4j
-public class AuthController {
+public class CustomerController {
 
     private final CustomerService customerService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<CustomerResponse> createAccount(@Valid @RequestBody CustomerCreateRequest request) {
-        log.info("Received profile creation request for email={}", request.getEmail());
+       log.info("Received profile creation request for email={}", request.getEmail());
         CustomerResponse response = customerService.createAccount(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    
     @PostMapping("/sign-in")
     public ResponseEntity<String> signIn() {
         return ResponseEntity.ok("Signed in successfully");
