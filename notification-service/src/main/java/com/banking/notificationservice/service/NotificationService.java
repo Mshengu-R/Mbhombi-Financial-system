@@ -44,7 +44,7 @@ public class NotificationService {
         }
     }
 
-
+@KafkaListener(topics = "transaction.completed")
 public void consumeTransactionCompleted(@Payload Map<String, Object> payload) {
 
     try {

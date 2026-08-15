@@ -1,6 +1,6 @@
 package com.banking.authenticationservice.entity;
 
-public enum UserEnthnicity {
+public enum CustomerEthnicity {
     AFRICAN,
     ASIAN,
     CAUCASIAN,

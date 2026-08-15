@@ -1,6 +1,6 @@
 package com.banking.authenticationservice.entity;
 
-public enum UserCountry {
+public enum CustomerCountry {
     SOUTH_AFRICA,
     UNITED_STATES,
     UNITED_KINGDOM,
