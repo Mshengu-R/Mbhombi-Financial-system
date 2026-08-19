@@ -104,6 +104,8 @@ public String saveUser(Customer customer) {
     return "Customer credentials have been saved successfully";
 }
 
+
+
     /**
      * Authenticates the supplied username and password and returns a JWT.
      */
