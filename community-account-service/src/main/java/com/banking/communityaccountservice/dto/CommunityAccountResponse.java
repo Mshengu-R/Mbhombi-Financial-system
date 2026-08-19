@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -28,7 +27,7 @@ public class CommunityAccountResponse {
     private CommunityAccountType accountType;
     private boolean privateCommunity;
     private String joinCode;
-    private Set<String> members;
+    private String pin;
     private CommunityAccountStatus status;
     private BigDecimal balance;
     private BigDecimal dailyTransactionLimit;

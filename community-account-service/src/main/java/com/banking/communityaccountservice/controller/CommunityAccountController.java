@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-import jakarta.validation.Valid;
+// import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,7 +34,7 @@ public class CommunityAccountController {
     @PostMapping("/community/{id}")
     public ResponseEntity<CommunityAccountResponse> createAccount(
         @PathVariable String id,
-        @Valid @RequestBody CommunityCreateAccountRequest request) {
+     @RequestBody CommunityCreateAccountRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(communityAccountService.createAccount(request));
@@ -50,37 +50,22 @@ public class CommunityAccountController {
         return ResponseEntity.ok(communityAccountService.getBalance(accountNumber));
     }
 
-    @PostMapping("/{accountNumber}/{id}/join")
-    public ResponseEntity<CommunityAccountResponse> joinCommunity(
-            @PathVariable @Valid String accountNumber,
-            @PathVariable @Valid String id,
-            @RequestParam String memberName,
-            @RequestParam(required = false) String joinCode) {
-        return ResponseEntity.ok(communityAccountService.joinCommunity(accountNumber, memberName, joinCode));
-    }
-
-    @PostMapping("/{accountNumber}/leave")
-    public ResponseEntity<CommunityAccountResponse> leaveCommunity(
-            @PathVariable @Valid String accountNumber,
-            @RequestParam String memberName) {
-        return ResponseEntity.ok(communityAccountService.leaveCommunity(accountNumber, memberName));
-    }
 
     @PutMapping("/{accountNumber}/block")
-    public ResponseEntity<String> blockAccount(@PathVariable @Valid String accountNumber) {
+    public ResponseEntity<String> blockAccount(@PathVariable String accountNumber) {
         communityAccountService.blockAccount(accountNumber);
         return ResponseEntity.ok("Community account blocked successfully");
     }
 
     @PutMapping("/{accountNumber}/unblock")
-    public ResponseEntity<String> unblockAccount(@PathVariable @Valid String accountNumber) {
+    public ResponseEntity<String> unblockAccount(@PathVariable String accountNumber) {
         communityAccountService.unblockAccount(accountNumber);
         return ResponseEntity.ok("Community account unblocked successfully");
     }
 
     @PutMapping("/{accountNumber}/deduct")
     public ResponseEntity<String> deductBalance(
-            @PathVariable @Valid String accountNumber,
+            @PathVariable String accountNumber,
             @RequestParam BigDecimal amount) {
         communityAccountService.deductBalance(accountNumber, amount);
         return ResponseEntity.ok("Balance deducted successfully");
@@ -88,7 +73,7 @@ public class CommunityAccountController {
 
     @PutMapping("/{accountNumber}/credit")
     public ResponseEntity<String> creditBalance(
-            @PathVariable @Valid String accountNumber,
+            @PathVariable String accountNumber,
             @RequestParam BigDecimal amount) {
         communityAccountService.creditBalance(accountNumber, amount);
         return ResponseEntity.ok("Balance has been credited successfully");
@@ -96,7 +81,7 @@ public class CommunityAccountController {
 
     @PutMapping("/{accountNumber}/claim")
     public ResponseEntity<CommunityAccountResponse> claimFunds(
-            @PathVariable @Valid String accountNumber,
+            @PathVariable String accountNumber,
             @RequestParam String memberName,
             @RequestParam BigDecimal amount) {
         return ResponseEntity.ok(communityAccountService.claimFunds(accountNumber, memberName, amount));

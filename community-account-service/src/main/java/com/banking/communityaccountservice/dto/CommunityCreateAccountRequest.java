@@ -39,6 +39,11 @@ public class CommunityCreateAccountRequest {
 
     private boolean privateCommunity;
 
+    // @NotNull(message = "Customer's id is required to join the community")
+    private String membersId;
+
+    private String pin;
+
     private String joinCode;
 
     @NotNull(message = "Initial deposit is required")

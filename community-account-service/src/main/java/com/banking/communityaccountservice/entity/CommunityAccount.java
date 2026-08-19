@@ -2,17 +2,15 @@ package com.banking.communityaccountservice.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +28,9 @@ public class CommunityAccount {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @JoinColumn(nullable = false, unique = true)
+    private String customerId;
+
     @Column(nullable = false)
     private String name;
 
@@ -38,9 +39,6 @@ public class CommunityAccount {
 
     @Column(nullable = false)
     private String description;
-
-    @Column(name = "display_name", nullable = false)
-    private String displayName;
 
     @Column(nullable = false)
     private String rulesDescription;
@@ -58,11 +56,8 @@ public class CommunityAccount {
     @Column(nullable = false)
     private boolean privateCommunity;
 
-    @Column(nullable = true, length = 7)
+    @Column(nullable = false, length = 7)
     private String joinCode;
-
-    @ElementCollection
-    private Set<String> members = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
