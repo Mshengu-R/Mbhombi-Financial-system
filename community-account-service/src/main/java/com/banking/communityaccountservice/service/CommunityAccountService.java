@@ -64,9 +64,6 @@ public class CommunityAccountService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member name is required.");
         }
 
-        Set<String> members = account.getMembers() == null ? new HashSet<>() : new HashSet<>(account.getMembers());
-        members.add(memberName.trim());
-        account.setMembers(members);
         return mapToResponse(accountRepository.save(account));
     }
 
@@ -77,17 +74,17 @@ public class CommunityAccountService {
     public CommunityAccountResponse leaveCommunity(String accountNumber, String memberName) {
         CommunityAccount account = findAccountByNumber(accountNumber);
         if (memberName != null && !memberName.isBlank()) {
-            Set<String> members = account.getMembers() == null ? new HashSet<>() : new HashSet<>(account.getMembers());
-            members.remove(memberName.trim());
-            account.setMembers(members);
+
         }
         return mapToResponse(accountRepository.save(account));
     }
 
     private CommunityAccountType parseAccountType(String accountTypeName) {
+      
         if (accountTypeName == null || accountTypeName.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account type is required.");
         }
+
         try {
             return CommunityAccountType.valueOf(accountTypeName.toUpperCase());
         } catch (IllegalArgumentException ex) {
@@ -96,7 +93,11 @@ public class CommunityAccountService {
         }
     }
 
-    private CommunityAccount buildAccount(CommunityCreateAccountRequest request, CommunityAccountType accountType) {
+
+
+    private CommunityAccount buildAccount(CommunityCreateAccountRequest request,
+                                          CommunityAccountType accountType) {
+
         CommunityAccount account = new CommunityAccount();
         account.setName(request.getName());
         account.setCreatorName(request.getCreatorName());
@@ -110,20 +111,19 @@ public class CommunityAccountService {
         account.setStatus(CommunityAccountStatus.ACTIVE);
         account.setBalance(request.getInitialDeposit());
         account.setAccountNumber(generateAccountNumber());
-        account.setMembers(new HashSet<>());
-        account.getMembers().add(request.getCreatorName());
+
         account.setDailyTransactionLimit(accountType == CommunityAccountType.STOKVEL
                 ? SAVINGS_TRANSACTION_LIMIT
                 : DEFAULT_TRANSACTION_LIMIT);
         return account;
     }
 
+
+
     private CommunityAccountResponse mapToResponse(CommunityAccount account) {
         CommunityAccountResponse response = new CommunityAccountResponse();
         response.setId(account.getId());
         response.setName(account.getName());
-        response.setDisplayName(account.getDisplayName());
-        response.setCreatorName(account.getCreatorName());
         response.setDescription(account.getDescription());
         response.setRulesDescription(account.getRulesDescription());
         response.setAccountNumber(account.getAccountNumber());
@@ -132,7 +132,6 @@ public class CommunityAccountService {
         response.setAccountType(account.getAccountType());
         response.setPrivateCommunity(account.isPrivateCommunity());
         response.setJoinCode(account.getJoinCode());
-        response.setMembers(account.getMembers());
         response.setStatus(account.getStatus());
         response.setBalance(account.getBalance());
         response.setDailyTransactionLimit(account.getDailyTransactionLimit());
@@ -208,10 +207,6 @@ public class CommunityAccountService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member name is required.");
         }
 
-        Set<String> members = account.getMembers() == null ? new HashSet<>() : new HashSet<>(account.getMembers());
-        if (!members.contains(memberName.trim())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member is not part of this community account.");
-        }
 
         validateSufficientBalance(account, amount);
         account.setBalance(account.getBalance().subtract(amount));
