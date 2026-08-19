@@ -31,14 +31,16 @@ public class CommunityAccountController {
 
     private final CommunityAccountService communityAccountService;
 
-    @PostMapping
+    @PostMapping("/community/{id}")
     public ResponseEntity<CommunityAccountResponse> createAccount(
+        @PathVariable String id,
         @Valid @RequestBody CommunityCreateAccountRequest request) {
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(communityAccountService.createAccount(request));
     }
 
-    @GetMapping("/{accountNumber}")
+    @GetMapping("/{accountNumber}/")
     public ResponseEntity<CommunityAccountResponse> getAccount(@PathVariable String accountNumber) {
         return ResponseEntity.ok(communityAccountService.getAccount(accountNumber));
     }
@@ -48,15 +50,16 @@ public class CommunityAccountController {
         return ResponseEntity.ok(communityAccountService.getBalance(accountNumber));
     }
 
-    @PutMapping("/{accountNumber}/join")
+    @PostMapping("/{accountNumber}/{id}/join")
     public ResponseEntity<CommunityAccountResponse> joinCommunity(
             @PathVariable @Valid String accountNumber,
+            @PathVariable @Valid String id,
             @RequestParam String memberName,
             @RequestParam(required = false) String joinCode) {
         return ResponseEntity.ok(communityAccountService.joinCommunity(accountNumber, memberName, joinCode));
     }
 
-    @PutMapping("/{accountNumber}/leave")
+    @PostMapping("/{accountNumber}/leave")
     public ResponseEntity<CommunityAccountResponse> leaveCommunity(
             @PathVariable @Valid String accountNumber,
             @RequestParam String memberName) {

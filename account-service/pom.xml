@@ -11,7 +11,7 @@
 	<groupId>com.banking</groupId>
 	<artifactId>account-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
+	<name>Account-service</name>
 	<description/>
 	<url/>
 	<licenses>

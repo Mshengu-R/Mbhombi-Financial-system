@@ -65,19 +65,19 @@ public Customer buildCustomer(AuthorizationRequest request,
                             CustomerTitle title,
                             CustomerLanguage lang,
                             CustomerGender gender,
-                            CustomerEthnicity ethnicty) {
+                            CustomerEthnicity ethnicity) {
                           
     Customer customer = new Customer();
     customer.setEmail(request.getEmail());
-    customer.setFirstName(request.getFirstName());
-    customer.setSecondName(request.getSecondName());
+    customer.setName(request.getName());
     customer.setSurname(request.getSurname());
     customer.setPhone(request.getPhone());
-    customer.setTitle(request.getTitle());
-    customer.setCountry(request.getCountry());
-    customer.setGender(request.getGender());
-    customer.setLanguage(request.getLanguage());
-    customer.seEthnicity(request.getEthnicity());
+    customer.setTitle(title);
+    customer.setCountry(country);
+    customer.setGender(gender);
+    customer.setCustomerLanguage(lang);
+    customer.seEthnicity(ethnicity);
+    return customer;
 
     
 }
