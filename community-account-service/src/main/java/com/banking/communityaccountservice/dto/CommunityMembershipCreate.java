@@ -3,29 +3,29 @@ package com.banking.communityaccountservice.dto;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
+@Data
 public class CommunityMembershipCreate {
 
 
-    @NotBlank(message = "Community id name is required")
+    @NotBlank(message = "Community id is required")
     private String communityId;
 
-    @NotBlank(message = "Customer id name is required")
+    @NotBlank(message = "Customer id is required")
     private String customerId;
 
     @NotBlank(message = "Display name is required")
     private String displayName;
 
-    @NotBlank(message = "Community name is required")
+    @NotBlank(message = "Account number is required")
     private String accountNumber;
 
-    @NotBlank(message = "Community name is required")
+    @NotBlank(message = "Bank name is required")
     private String bankName;
 
-    @NotBlank(message = "Community type is required")
     private boolean privateCommunity;
 
-    @NotBlank(message = "Community name is required")
     private BigDecimal dailyTransactionLimit;
 
 }

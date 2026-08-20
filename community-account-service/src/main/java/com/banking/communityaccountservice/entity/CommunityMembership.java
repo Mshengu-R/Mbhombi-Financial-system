@@ -10,7 +10,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,7 +18,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
-@Table(name = "community_memberships")
+@Table(name = "community_memberships", uniqueConstraints = {
+    @jakarta.persistence.UniqueConstraint(name = "sa_membership_community_customer",
+        columnNames = {"community_id", "customer_id"})
+})
+// @Table(name = "community_memberships")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,33 +31,32 @@ public class CommunityMembership {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @JoinColumn(nullable = false, unique = true)
+    @Column(name = "community_id", nullable = false)
     private String communityId;
 
-    @Column(nullable = false)
+    @Column(name = "customer_id", nullable = false)
     private String customerId;
 
     @Column(name = "display_name", nullable = false)
     private String displayName;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String accountNumber;
+
 
     @Column(name = "bank_name", nullable = false)
     private String bankName;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CommunityAccountUserRole role;
+    private CommunityMemberRole role;
 
     @Column(nullable = false)
     private boolean privateCommunity;
 
-    @Column(nullable = false, length = 7)
-    private String joinCode;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CommunityAccountStatus status;
+    private CommunityMembershipStatus status;
 
     @Column(nullable = false, precision = 15, scale = 4)
     private BigDecimal dailyTransactionLimit;

@@ -39,9 +39,9 @@ public class AccountService {
      */
     @Transactional
     public AccountResponse createAccount(CreateAccountRequest request) {
-        // log.info("Creating account for email={}", request.getEmail());
+        log.info("Creating account for customer={}", request.getCustomerId());
 
-        // if (accountRepository.existsByEmail(request.getEmail())) {
+        // if (accountRepository.existsByAccountId(request.getPhone())) {
         //     log.warn("Account with email {} already exists", request.getEmail());
         //     throw new ResponseStatusException(HttpStatus.CONFLICT,
         //             "Account with email \"" + request.getEmail() + "\" already exists");
@@ -73,8 +73,7 @@ public class AccountService {
     private Account buildAccount(CreateAccountRequest request, AccountType accountType) {
         Account account = new Account();
         account.setAccountHolderName(request.getAccountHolderName());
-        // account.setEmail(request.getEmail());
-        // account.setPhone(request.getPhone());
+        // account.setId(requestId());
         account.setBankName(DEFAULT_BANK_NAME);
         account.setAccountType(accountType);
         account.setStatus(AccountStatus.ACTIVE);
@@ -91,8 +90,6 @@ public class AccountService {
         response.setId(account.getId());
         response.setAccountNumber(account.getAccountNumber());
         response.setAccountHolderName(account.getAccountHolderName());
-        // response.setEmail(account.getEmail());
-        // response.setPhone(account.getPhone());
         response.setBankName(account.getBankName());
         response.setAccountType(account.getAccountType());
         response.setStatus(account.getStatus());

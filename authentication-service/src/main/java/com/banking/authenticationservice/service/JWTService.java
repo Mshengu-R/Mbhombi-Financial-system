@@ -32,6 +32,18 @@ public class JWTService {
             @Value("${security.jwt.access-token-expiration}")
             Duration accessTokenExpiration
     ) {
+        this(base64Secret, accessTokenExpiration, Clock.systemUTC());
+    }
+
+    /*
+     * Package-private constructor allows deterministic unit testing by
+     * injecting a fixed Clock.
+     */
+    JWTService(
+            String base64Secret,
+            Duration accessTokenExpiration,
+            Clock clock
+    ) {
         if (base64Secret == null || base64Secret.isBlank()) {
             throw new IllegalArgumentException(
                     "JWT secret must not be blank"
@@ -50,6 +62,11 @@ public class JWTService {
             );
         }
 
+        this.clock = Objects.requireNonNull(
+                clock,
+                "Clock must not be null"
+        );
+
         byte[] decodedSecret;
 
         try {
@@ -61,14 +78,23 @@ public class JWTService {
             );
         }
 
+        /*
+         * Keys.hmacShaKeyFor validates whether the key is sufficiently
+         * strong for an HMAC JWT signature.
+         */
         this.signingKey = Keys.hmacShaKeyFor(decodedSecret);
-        this.clock = Clock.systemUTC();
     }
 
+    /**
+     * Generates a JWT containing the authenticated username as its subject.
+     */
     public String generateToken(String username) {
         return generateToken(Map.of(), username);
     }
 
+    /**
+     * Generates a JWT with additional non-sensitive claims.
+     */
     public String generateToken(
             Map<String, Object> additionalClaims,
             String username
@@ -84,6 +110,10 @@ public class JWTService {
                 "Additional claims must not be null"
         );
 
+        /*
+         * Prevent additional claims from overriding JWT claims controlled
+         * by this service.
+         */
         if (additionalClaims.containsKey(Claims.SUBJECT)
                 || additionalClaims.containsKey(Claims.ISSUED_AT)
                 || additionalClaims.containsKey(Claims.EXPIRATION)) {
@@ -123,10 +153,15 @@ public class JWTService {
         );
 
         Claims claims = extractAllClaims(token);
-
         return claimResolver.apply(claims);
     }
 
+    /**
+     * Validates the signature, subject, and expiration of a JWT.
+     *
+     * Returns false for malformed, expired, unsupported, or incorrectly
+     * signed tokens.
+     */
     public boolean validateToken(
             String token,
             UserDetails userDetails
@@ -166,10 +201,7 @@ public class JWTService {
 
     private boolean isTokenExpired(String token) {
         Date expiration = extractExpiration(token);
-
-        return expiration.before(
-                Date.from(clock.instant())
-        );
+        return expiration.before(Date.from(clock.instant()));
     }
 
     private Claims extractAllClaims(String token) {

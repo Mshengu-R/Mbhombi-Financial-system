@@ -18,7 +18,7 @@ public class AccountResponse {
 
     private String accountNumber;
 
-    private String userId;
+    private String customerId;
 
     private String bankName;
 

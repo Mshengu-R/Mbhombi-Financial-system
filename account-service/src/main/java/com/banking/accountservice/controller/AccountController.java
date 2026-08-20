@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-// import jakarta.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,9 +32,9 @@ public class AccountController {
     
     private final AccountService accountService;
 
-    @PostMapping("/register")
+    @PostMapping("/")
     public ResponseEntity<AccountResponse> createAccount(
-        // @Valid
+        @Valid
         @RequestBody
         CreateAccountRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)

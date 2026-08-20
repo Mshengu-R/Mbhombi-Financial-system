@@ -40,7 +40,7 @@ public class Account {
     private String accountHolderName;
 
     @Column(nullable = false)
-    private String userId;
+    private String customerId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
