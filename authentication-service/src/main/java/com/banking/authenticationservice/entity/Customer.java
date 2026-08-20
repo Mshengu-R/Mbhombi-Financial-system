@@ -1,10 +1,7 @@
 package com.banking.authenticationservice.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -91,26 +88,26 @@ private UUID id;
     @Column(nullable = false)
     private CustomerLanguage customerLanguage;
 
-@ElementCollection
-@CollectionTable(
+    @ElementCollection
+    @CollectionTable(
     name = "customer_home_addresses",
     joinColumns = @JoinColumn(name = "customer_id")
-)
-@Column(name = "address")
-private List<String> homeAddress;
+    )
+    @Column(name = "address")
+    private List<String> homeAddress;
 
 
-@ElementCollection
-@CollectionTable(
+    @ElementCollection
+    @CollectionTable(
     name = "customer_other_addresses",
     joinColumns = @JoinColumn(name = "customer_id")
-)
-@Column(name = "address")
-private List<String> otherAddress;
+    )
+    @Column(name = "address")
+    private List<String> otherAddress;
 
-@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-@Column(nullable = false)
-private String password;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(nullable = false)
+    private String password;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

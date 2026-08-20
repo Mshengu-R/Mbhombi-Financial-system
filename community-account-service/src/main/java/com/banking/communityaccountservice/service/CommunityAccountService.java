@@ -15,8 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
-import java.util.HashSet;
-import java.util.Set;
+
 
 /**
  * Service containing business operations for community accounts.
@@ -46,40 +45,9 @@ public class CommunityAccountService {
         return mapToResponse(savedAccount);
     }
 
-    /**
-     * Allow a user to join a community account. Private communities require a seven-digit join code.
-     */
-    @Transactional
-    public CommunityAccountResponse joinCommunity(String accountNumber, String memberName, String joinCode) {
-        CommunityAccount account = findAccountByNumber(accountNumber);
-        validateAccountActive(accountNumber, account);
 
-        if (account.isPrivateCommunity()) {
-            if (joinCode == null || !joinCode.equals(account.getJoinCode())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid join code for this private community.");
-            }
-        }
-
-        if (memberName == null || memberName.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member name is required.");
-        }
-
-        return mapToResponse(accountRepository.save(account));
-    }
-
-    /**
-     * Allow a member to leave the community account.
-     */
-    @Transactional
-    public CommunityAccountResponse leaveCommunity(String accountNumber, String memberName) {
-        CommunityAccount account = findAccountByNumber(accountNumber);
-        if (memberName != null && !memberName.isBlank()) {
-
-        }
-        return mapToResponse(accountRepository.save(account));
-    }
-
-    private CommunityAccountType parseAccountType(String accountTypeName) {
+    
+ private CommunityAccountType parseAccountType(String accountTypeName) {
       
         if (accountTypeName == null || accountTypeName.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account type is required.");
@@ -92,7 +60,6 @@ public class CommunityAccountService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid account type: " + accountTypeName);
         }
     }
-
 
 
     private CommunityAccount buildAccount(CommunityCreateAccountRequest request,
@@ -111,7 +78,7 @@ public class CommunityAccountService {
         account.setStatus(CommunityAccountStatus.ACTIVE);
         account.setBalance(request.getInitialDeposit());
         account.setAccountNumber(generateAccountNumber());
-
+    
         account.setDailyTransactionLimit(accountType == CommunityAccountType.STOKVEL
                 ? SAVINGS_TRANSACTION_LIMIT
                 : DEFAULT_TRANSACTION_LIMIT);
@@ -137,6 +104,7 @@ public class CommunityAccountService {
         response.setDailyTransactionLimit(account.getDailyTransactionLimit());
         response.setCreatedAt(account.getCreatedAt());
         return response;
+        
     }
 
     private CommunityAccount findAccountByNumber(String accountNumber) {

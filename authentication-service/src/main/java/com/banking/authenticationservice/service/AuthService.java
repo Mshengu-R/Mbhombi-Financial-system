@@ -56,8 +56,7 @@ public String saveUser(Customer customer) {
         );
     }
 
-    if (customer.getEmail() == null
-            || customer.getEmail().isBlank()) {
+    if (customer.getEmail() == null || customer.getEmail().isBlank()) {
         throw new IllegalArgumentException(
                 "Email must not be empty"
         );
@@ -180,7 +179,6 @@ public String saveUser(Customer customer) {
         customer.setName(request.getName());
         customer.setSurname(request.getSurname());
         customer.setPhone(request.getPhone());
-
         customer.setRole(role);
         customer.setCountry(country);
         customer.setTitle(title);
