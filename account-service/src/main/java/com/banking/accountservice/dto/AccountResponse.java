@@ -20,7 +20,12 @@ public class AccountResponse {
 
     private String customerId;
 
+    private String phone;
+    // added in the database so if the request comes without it it will break
+
     private String bankName;
+
+    private String currency;
 
     private String accountHolderName;
 
