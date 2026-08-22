@@ -28,6 +28,7 @@ public class AccountService {
     private static final String DEFAULT_BANK_NAME = "Mbhombi Bank";
     private static final BigDecimal SAVINGS_TRANSACTION_LIMIT = new BigDecimal("100000");
     private static final BigDecimal DEFAULT_TRANSACTION_LIMIT = new BigDecimal("500000");
+    private static final String currency = "ZAR";
 
     private final AccountRepository accountRepository;
 
@@ -73,7 +74,8 @@ public class AccountService {
     private Account buildAccount(CreateAccountRequest request, AccountType accountType) {
         Account account = new Account();
         account.setAccountHolderName(request.getAccountHolderName());
-        // account.setId(requestId());
+        account.setPhone(request.getPhone());
+        account.setCurrency(currency);
         account.setBankName(DEFAULT_BANK_NAME);
         account.setAccountType(accountType);
         account.setStatus(AccountStatus.ACTIVE);

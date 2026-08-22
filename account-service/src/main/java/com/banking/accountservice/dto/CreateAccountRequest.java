@@ -21,8 +21,8 @@ public class CreateAccountRequest {
     @NotNull(message = "UserId is required")
     private String customerId;
 
-    // @NotBlank(message = "Phone number is required")
-    // private String phone;
+    @NotBlank(message = "Phone number is required")
+    private String phone;
 
     @NotBlank(message = "Account type is required")
     private String accountType;

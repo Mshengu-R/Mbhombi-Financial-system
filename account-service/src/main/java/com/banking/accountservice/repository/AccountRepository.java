@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 // because of our id type is string
 public interface AccountRepository extends JpaRepository<Account, String>{
     
-    boolean existsByAccountId(String id);
+    // boolean existsByAccountId(String id);
     boolean existsByAccountNumber(String accountNumber);
     Optional<Account> findByAccountNumber(String accountNumber);
     // boolean exists

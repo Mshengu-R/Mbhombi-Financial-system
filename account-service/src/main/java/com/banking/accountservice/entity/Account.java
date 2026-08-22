@@ -49,6 +49,9 @@ public class Account {
     @Column(nullable = false)
     private AccountStatus status;
 
+    @Column(nullable = false)
+    private String currency;
+
     @Column(nullable = false, precision = 4)
     private BigDecimal pin;
 
