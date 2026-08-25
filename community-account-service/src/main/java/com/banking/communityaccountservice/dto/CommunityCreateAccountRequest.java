@@ -20,6 +20,10 @@ public class CommunityCreateAccountRequest {
     @NotBlank(message = "Creator name is required")
     private String creatorName;
 
+    // ADDED: identifies the customer who owns/creates this community account.
+    @NotBlank(message = "Creator customer id is required")
+    private String customerId;
+
     @NotBlank(message = "Community description is required")
     private String description;
 
@@ -29,7 +33,7 @@ public class CommunityCreateAccountRequest {
     @NotBlank(message = "Account type is required")
     private String accountType;
 
-    @NotBlank(message = "Bank name is required")
+    // REMOVED as a required input: the service owns the bank name.
     private String bankName;
 
     @NotBlank(message = "Display name is required")
@@ -44,6 +48,8 @@ public class CommunityCreateAccountRequest {
 
     private String pin;
 
+    // CHANGED: the creator supplies the six-digit code used by members to join.
+    @NotBlank(message = "A six-digit join code is required")
     private String joinCode;
 
     @NotNull(message = "Initial deposit is required")

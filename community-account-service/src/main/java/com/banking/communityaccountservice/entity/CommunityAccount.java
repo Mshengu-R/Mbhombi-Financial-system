@@ -10,7 +10,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,7 +27,9 @@ public class CommunityAccount {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @JoinColumn(nullable = false, unique = true)
+    // CHANGED: this is a scalar creator/customer identifier, not a JPA relationship.
+    // CHANGED: a creator may own more than one community account.
+    @Column(nullable = false)
     private String customerId;
 
     @Column(nullable = false)
@@ -56,7 +57,8 @@ public class CommunityAccount {
     @Column(nullable = false)
     private boolean privateCommunity;
 
-    @Column(nullable = false, length = 7)
+    // CHANGED: join codes are created by the creator and are exactly six digits.
+    @Column(nullable = false, length = 6)
     private String joinCode;
 
     @Enumerated(EnumType.STRING)

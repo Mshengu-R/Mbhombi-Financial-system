@@ -27,7 +27,6 @@ public class CommunityAccountResponse {
     private CommunityAccountType accountType;
     private boolean privateCommunity;
     private String joinCode;
-    private String pin;
     private CommunityAccountStatus status;
     private BigDecimal balance;
     private BigDecimal dailyTransactionLimit;
