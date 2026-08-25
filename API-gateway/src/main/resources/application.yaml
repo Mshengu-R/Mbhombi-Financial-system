@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: API-gateway
+  data:
+    redis:
+     host: ${REDIS_HOST}
+     port: ${REDIS_PORT}
+  
+  cloud:
+    gateway:
+      routes:
+
+
+      #Account service routes
+      - id: ${ACCOUT_ID}
+        uri: ${ACCOUNT-SERVER}
+        predicates:
+         - Path=/api/v1/accounts/**
+        filters:
+          - name: RequestRateLimiter
+            args:
+              redis-rate-limiter-replenishRate: 10
+              redis-rate-limiter-burstCapacity: 20
+          
+
+      #Transaction service routes
+      - id: ${TRANSACTION_ID}
+        uri: ${TRANSACTION_SERVER}
+        predicates:
+         - Path=/api/v1/transactions/**
+        filters:
+          - name: RequestRateLimiter
+            args:
+              redis-rate-limiter-replenishRate: 10
+              redis-rate-limiter-burstCapacity: 20
+
+      # Community account service routes
+      - id: ${COMMUNITY_ACCOUNT_SERVER}
+        uri: ${COMMUNITY_ACCOUNT_ID}
+        predicates:
+         - Path=/api/v1/community-accounts/**
+        filters:
+          - name: RequestRateLimiter
+            args:
+              redis-rate-limiter-replenishRate: 10
+              redis-rate-limiter-burstCapacity: 20
+
+    
+      #Payment service routes
+      - id: ${PAYMENT_ID}
+        uri: ${PAYMENT_SERVER}
+        predicates:
+          - Path=/api/v1/payments/**
+        filters:
+          - name: RequestRateLimiter
+            args:
+              redis-rate-limiter-replenishRate: 10
+              redis-rate-limiter-burstCapacity: 20
+
+server: 
+  port: ${GATEWAY_PORT}
+
+management:
+  endpoints:
+      web:
+        exposure:
+          include: health,info,gateway
