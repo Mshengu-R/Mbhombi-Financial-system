@@ -76,7 +76,9 @@ public class AccountService {
         account.setAccountHolderName(request.getAccountHolderName());
         account.setPhone(request.getPhone());
         account.setCurrency(currency);
+        account.setCustomerId(request.getCustomerId());
         account.setBankName(DEFAULT_BANK_NAME);
+        account.setPin(request.getPin());
         account.setAccountType(accountType);
         account.setStatus(AccountStatus.ACTIVE);
         account.setBalance(request.getInitialDeposit());
@@ -128,6 +130,7 @@ public class AccountService {
         log.info("Unblocking account={}", accountNumber);
         Account account = findAccountByNumber(accountNumber);
         account.setStatus(AccountStatus.ACTIVE);
+        account.setUpdatedAt(account.getUpdatedAt());
         accountRepository.save(account);
     }
 

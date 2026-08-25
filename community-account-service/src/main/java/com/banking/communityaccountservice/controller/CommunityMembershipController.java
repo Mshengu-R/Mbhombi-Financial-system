@@ -28,14 +28,14 @@ public class CommunityMembershipController {
         private final CommunityMembershipService communityMembershipService;
 
 
-        @PostMapping("/{accountNumber}/{id}/join")
+        @PostMapping("/{accountNumber}/{customerId}/{joinCode}/join")
     public ResponseEntity<JoinCommunityResponse> joinCommunity(
             @PathVariable String accountNumber,
-            @PathVariable String id,
-            @RequestParam String memberName,
-            @RequestParam(required = false) String joinCode,
+            @PathVariable String customerId,
+            // @RequestParam String memberName,
+            @PathVariable String joinCode,
             @Valid @RequestBody JoinCommunityRequest request) {
-        return ResponseEntity.ok(communityMembershipService.joinCommunity(accountNumber, id, memberName, joinCode, request));
+        return ResponseEntity.ok(communityMembershipService.joinCommunity(accountNumber, customerId, joinCode, request));
     }
 
     

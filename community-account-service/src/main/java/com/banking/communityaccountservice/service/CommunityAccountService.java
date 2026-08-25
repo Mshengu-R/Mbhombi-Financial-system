@@ -40,6 +40,7 @@ public class CommunityAccountService {
     private static final BigDecimal SAVINGS_TRANSACTION_LIMIT = new BigDecimal("100000");
     private static final BigDecimal DEFAULT_TRANSACTION_LIMIT = new BigDecimal("500000");
     private static final String COMMUNITY_CLAIMED_TOPIC = "community.funds.claimed";
+    private static final boolean PrivateAcc = true;
 
     private final CommunityAccountRepository accountRepository;
     private final CommunityMembershipRepository membershipRepository;
@@ -89,7 +90,7 @@ public class CommunityAccountService {
         account.setBankName(DEFAULT_BANK_NAME);
         account.setAccountType(accountType);
         account.setOtherType(accountType == CommunityAccountType.OTHER ? request.getOtherType() : null);
-        account.setPrivateCommunity(request.isPrivateCommunity());
+        // account.setPrivateCommunity(request.isPrivateCommunity());
         account.setJoinCode(normalizeJoinCode(request.getJoinCode()));
         account.setStatus(CommunityAccountStatus.ACTIVE);
         account.setBalance(request.getInitialDeposit());
@@ -114,7 +115,7 @@ public class CommunityAccountService {
         response.setBankName(account.getBankName());
         response.setOtherType(account.getOtherType());
         response.setAccountType(account.getAccountType());
-        response.setPrivateCommunity(account.isPrivateCommunity());
+        // response.setPrivateCommunity(account.isPrivateCommunity());
         response.setJoinCode(account.getJoinCode());
         response.setStatus(account.getStatus());
         response.setBalance(account.getBalance());
@@ -225,12 +226,12 @@ public class CommunityAccountService {
         CommunityMembership membership = new CommunityMembership();
         membership.setCommunityId(account.getId());
         membership.setCustomerId(account.getCustomerId());
-        membership.setDisplayName(request.getDisplayName().trim());
+        // membership.setDisplayName(request.getDisplayName().trim());
         membership.setAccountNumber(account.getAccountNumber());
         membership.setBankName(account.getBankName());
         // CHANGED: ADMIN is the existing role representing the creator.
         membership.setRole(CommunityMemberRole.ADMIN);
-        membership.setPrivateCommunity(account.isPrivateCommunity());
+        // membership.setPrivateCommunity(account.isPrivateCommunity());
         membership.setStatus(CommunityMembershipStatus.JOINED);
         membership.setDailyTransactionLimit(account.getDailyTransactionLimit());
         membershipRepository.save(membership);

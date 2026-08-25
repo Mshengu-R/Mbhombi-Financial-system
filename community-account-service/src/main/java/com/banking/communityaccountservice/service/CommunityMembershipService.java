@@ -32,13 +32,13 @@ public class CommunityMembershipService {
      * The path values are authoritative; request values are checked to prevent cross-account joins.
      */
     @Transactional
-    public JoinCommunityResponse joinCommunity(String accountNumber, String customerId, String memberName,
+    public JoinCommunityResponse joinCommunity(String accountNumber, String customerId,
                                                String joinCode, JoinCommunityRequest request) {
         CommunityAccount account = findAccountByNumber(accountNumber);
         validateAccountActive(accountNumber, account);
         validateRequired(accountNumber, "Account number");
         validateRequired(customerId, "Customer id");
-        validateRequired(memberName, "Member name");
+        // validateRequired(memberName, "Member name");
         validateRequestMatchesAccount(account, accountNumber, customerId, request);
 
         // CHANGED: every community uses the creator's six-digit code to authorize joining.
@@ -55,20 +55,20 @@ public class CommunityMembershipService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Customer is already a member of this community.");
         }
 
-        CommunityMembership membership = buildMembership(account, customerId, memberName, request, existing);
+        CommunityMembership membership = buildMembership(account, customerId, request, existing);
         return mapToResponse(membershipRepository.save(membership));
     }
 
-    private CommunityMembership buildMembership(CommunityAccount account, String customerId, String memberName,
+    private CommunityMembership buildMembership(CommunityAccount account, String customerId, 
                                                 JoinCommunityRequest request, CommunityMembership existing) {
         CommunityMembership membership = existing == null ? new CommunityMembership() : existing;
         membership.setCommunityId(request.getCommunityId());
         membership.setCustomerId(customerId);
-        membership.setDisplayName(memberName.trim());
-        membership.setAccountNumber(account.getAccountNumber());
-        membership.setBankName(account.getBankName());
+        membership.setDisplayName(request.getMemberName().trim());
+        membership.setAccountNumber(request.getAccountNumber());
+        membership.setBankName(request.getBankName());
         membership.setRole(parseRole(request.getRole()));
-        membership.setPrivateCommunity(account.isPrivateCommunity());
+        // membership.setPrivateCommunity(account.isPrivateCommunity());
         membership.setStatus(CommunityMembershipStatus.JOINED);
         membership.setDailyTransactionLimit(account.getDailyTransactionLimit());
         return membership;
@@ -88,10 +88,10 @@ public class CommunityMembershipService {
     private void validateRequestMatchesAccount(CommunityAccount account, String accountNumber, String customerId,
                                                JoinCommunityRequest request) {
         validateRequired(request.getCommunityId(), "Community id");
-        validateRequired(request.getCustomerId(), "Customer id");
-        if (!customerId.equals(request.getCustomerId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer id does not match the requested member.");
-        }
+        validateRequired(customerId, "Customer id");
+        // if (!customerId.equals(request.getCustomerId())) {
+        //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer id does not match the requested member.");
+        // }
         if (account.getId() != null && !account.getId().equals(request.getCommunityId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Community id does not match the account.");
         }
@@ -136,7 +136,7 @@ public class CommunityMembershipService {
         response.setBankName(account.getBankName());
         response.setOtherType(account.getOtherType());
         response.setAccountType(account.getAccountType());
-        response.setPrivateCommunity(account.isPrivateCommunity());
+        // response.setPrivateCommunity(account.isPrivateCommunity());
         response.setJoinCode(account.getJoinCode());
         response.setStatus(account.getStatus());
         response.setBalance(account.getBalance());
@@ -175,31 +175,12 @@ public class CommunityMembershipService {
         response.setCommunityId(membership.getCommunityId());
         response.setAccountNumber(membership.getAccountNumber());
         response.setRole(membership.getRole().name());
-        response.setPrivateCommunity(membership.isPrivateCommunity());
+        // response.setPrivateCommunity(membership.isPrivateCommunity());
         response.setStatus(membership.getStatus().name());
         response.setDailyTransactionLimit(membership.getDailyTransactionLimit());
         response.setCreatedAt(membership.getCreatedAt());
         return response;
       
-
-
-
-        // CommunityAccountResponse response = new CommunityAccountResponse();
-        // response.setId(account.getId());
-        // response.setName(account.getName());
-        // response.setDescription(account.getDescription());
-        // response.setRulesDescription(account.getRulesDescription());
-        // response.setAccountNumber(account.getAccountNumber());
-        // response.setBankName(account.getBankName());
-        // response.setOtherType(account.getOtherType());
-        // response.setAccountType(account.getAccountType());
-        // response.setPrivateCommunity(account.isPrivateCommunity());
-        // response.setJoinCode(account.getJoinCode());
-        // response.setStatus(account.getStatus());
-        // response.setBalance(account.getBalance());
-        // response.setDailyTransactionLimit(account.getDailyTransactionLimit());
-        // response.setCreatedAt(account.getCreatedAt());
-        // return response;
     }
 
 

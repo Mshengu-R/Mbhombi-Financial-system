@@ -35,7 +35,7 @@ public class AccountResponse {
 
     private BigDecimal balance;
 
-    private String pin;
+    private BigDecimal pin;
 
     private BigDecimal dailyTransactionLimit;
 
