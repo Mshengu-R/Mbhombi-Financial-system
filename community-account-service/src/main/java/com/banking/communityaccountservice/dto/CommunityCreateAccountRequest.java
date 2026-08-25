@@ -36,12 +36,12 @@ public class CommunityCreateAccountRequest {
     // REMOVED as a required input: the service owns the bank name.
     private String bankName;
 
-    @NotBlank(message = "Display name is required")
-    private String displayName;
+    // @NotBlank(message = "Display name is required")
+    // private String displayName;
 
     private String otherType;
 
-    private boolean privateCommunity;
+    // private boolean privateCommunity;
 
     // @NotNull(message = "Customer's id is required to join the community")
     private String membersId;

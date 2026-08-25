@@ -43,6 +43,8 @@ public class CommunityMembership {
     @Column(nullable = false)
     private String accountNumber;
 
+    @Column(name = "member_name", nullable = false)
+    private String memberName;
 
     @Column(name = "bank_name", nullable = false)
     private String bankName;
@@ -51,8 +53,8 @@ public class CommunityMembership {
     @Column(nullable = false)
     private CommunityMemberRole role;
 
-    @Column(nullable = false)
-    private boolean privateCommunity;
+    // @Column(nullable = false)
+    // private boolean privateCommunity;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -1,6 +1,5 @@
 package com.banking.communityaccountservice.dto;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.NotBlank;
@@ -17,11 +16,14 @@ public class JoinCommunityRequest {
     @NotBlank(message = "Community Id is required")
     private String communityId;
 
-    @NotBlank(message = "Customer id is required")
-    private String customerId;
+    // @NotBlank(message = "Customer id is required")
+    // private String customerId;
 
     // @NotBlank(message = "Display name is")
     private String displayName;
+
+    @NotBlank(message = "Member name is required")
+    private String memberName;
 
     @NotBlank(message = "Account number is required")
     private String accountNumber;
@@ -32,7 +34,7 @@ public class JoinCommunityRequest {
     @NotNull(message = "Customer role is required")
     private String role;
 
-    private boolean privateCommunity;
+    // private boolean privateCommunity;
 
     private String status;
 

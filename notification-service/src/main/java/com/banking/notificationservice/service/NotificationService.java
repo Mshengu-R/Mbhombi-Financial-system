@@ -1,6 +1,7 @@
 package com.banking.notificationservice.service;
 
 import java.util.Map;
+import java.util.List;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -11,6 +12,26 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class NotificationService {
+
+    // ADDED: consumes the existing Kafka configuration for community claim alerts.
+    @KafkaListener(topics = "community.funds.claimed")
+    public void consumeCommunityClaimed(@Payload Map<String, Object> payload) {
+        try {
+            String accountNumber = (String) payload.get("accountNumber");
+            String claimantId = (String) payload.get("claimantId");
+            String amount = String.valueOf(payload.get("amount"));
+            Object recipientsValue = payload.get("recipients");
+            if (recipientsValue instanceof List<?> recipients) {
+                for (Object recipient : recipients) {
+                    sendAlert(String.valueOf(recipient), "COMMUNITY FUNDS CLAIMED",
+                            String.format("Customer %s claimed %s from community account %s.",
+                                    claimantId, amount, accountNumber));
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error sending community claim notification: {}", e.getMessage(), e);
+        }
+    }
     
 
     // kafka consumes the message and notify the customer 

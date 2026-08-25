@@ -26,7 +26,9 @@ public class JoinCommunityResponse {
 
     private String role;
 
-    private boolean privateCommunity;
+    private String memberName;
+
+    // private boolean privateCommunity;
 
     private String status;
 
