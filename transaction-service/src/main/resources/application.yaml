@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: transaction-service
+
+  config:
+    import: optional:dotenv:./.env[.properties]
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      timeout: 2000ms
+
+  datasource:
+    url: ${TRANSACTION-SERVICE_DB_URL}
+    username: ${TRANSACTION-SERVICE_DB_USERNAME}
+    password: ${TRANSACTION-SERVICE_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: ${KAFKA_GROUP_ID}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+           trusted:
+             packages: "*"
+        # spring.json.use.type.headers: false
+        spring.json.value.default.type: java.util.HashMap
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+server:
+  port: ${TRANSACTION_SERVICE_PORT}
+
+account:
+  service:
+    url: ${ACCOUNT_SERVICE_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
