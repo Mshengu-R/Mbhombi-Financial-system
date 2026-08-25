@@ -3,12 +3,14 @@ package com.banking.communityaccountservice.controller;
 import com.banking.communityaccountservice.service.CommunityAccountService;
 import com.banking.communityaccountservice.dto.CommunityCreateAccountRequest;
 import com.banking.communityaccountservice.dto.CommunityAccountResponse;
+import com.banking.communityaccountservice.dto.CommunityClaimResponse;
+import com.banking.communityaccountservice.dto.CommunityDescriptionUpdateRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-// import jakarta.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,13 +36,14 @@ public class CommunityAccountController {
     @PostMapping("/community/{id}")
     public ResponseEntity<CommunityAccountResponse> createAccount(
         @PathVariable String id,
-     @RequestBody CommunityCreateAccountRequest request) {
+    @Valid @RequestBody CommunityCreateAccountRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(communityAccountService.createAccount(request));
+                .body(communityAccountService.createAccount(id, request));
     }
 
-    @GetMapping("/{accountNumber}/")
+    // ADDED: account-number lookup returns the account users can review before joining.
+    @GetMapping("/{accountNumber}")
     public ResponseEntity<CommunityAccountResponse> getAccount(@PathVariable String accountNumber) {
         return ResponseEntity.ok(communityAccountService.getAccount(accountNumber));
     }
@@ -80,11 +83,20 @@ public class CommunityAccountController {
     }
 
     @PutMapping("/{accountNumber}/claim")
-    public ResponseEntity<CommunityAccountResponse> claimFunds(
+    public ResponseEntity<CommunityClaimResponse> claimFunds(
             @PathVariable String accountNumber,
-            @RequestParam String memberName,
+            @RequestParam String customerId,
             @RequestParam BigDecimal amount) {
-        return ResponseEntity.ok(communityAccountService.claimFunds(accountNumber, memberName, amount));
+        return ResponseEntity.ok(communityAccountService.claimFunds(accountNumber, customerId, amount));
+    }
+
+    // ADDED: only the creator may update the group description and rules.
+    @PutMapping("/{accountNumber}/description")
+    public ResponseEntity<CommunityAccountResponse> updateDescription(
+            @PathVariable String accountNumber,
+            @RequestParam String customerId,
+            @Valid @RequestBody CommunityDescriptionUpdateRequest request) {
+        return ResponseEntity.ok(communityAccountService.updateDescription(accountNumber, customerId, request));
     }
 }
 

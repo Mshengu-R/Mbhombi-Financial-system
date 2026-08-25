@@ -41,10 +41,9 @@ public class CommunityMembershipService {
         validateRequired(memberName, "Member name");
         validateRequestMatchesAccount(account, accountNumber, customerId, request);
 
-        if (account.isPrivateCommunity()) {
-            if (joinCode == null || !joinCode.trim().equals(account.getJoinCode())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid join code for this private community.");
-            }
+        // CHANGED: every community uses the creator's six-digit code to authorize joining.
+        if (joinCode == null || !joinCode.trim().equals(account.getJoinCode())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid join code for this community.");
         }
 
         String communityId = request.getCommunityId();
@@ -96,7 +95,7 @@ public class CommunityMembershipService {
         if (account.getId() != null && !account.getId().equals(request.getCommunityId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Community id does not match the account.");
         }
-        if (request.getAccountNumber() != null && !accountNumber.equals(request.getAccountNumber())) {
+        if (!accountNumber.equals(request.getAccountNumber())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account number does not match the account.");
         }
     }

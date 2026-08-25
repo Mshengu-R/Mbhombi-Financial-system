@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import jakarta.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +34,7 @@ public class CommunityMembershipController {
             @PathVariable String id,
             @RequestParam String memberName,
             @RequestParam(required = false) String joinCode,
-            @RequestBody JoinCommunityRequest request) {
+            @Valid @RequestBody JoinCommunityRequest request) {
         return ResponseEntity.ok(communityMembershipService.joinCommunity(accountNumber, id, memberName, joinCode, request));
     }
 
