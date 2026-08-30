@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,12 +34,20 @@ public class AuthorizationRequest {
     @NotBlank(message = "User email is required")
     private String email;
 
+    @NotBlank(message = "Username is required")
+    private String username;
+
     @NotBlank(message = "Phone number is required")
     private String phone;
 
     @NotNull(message = "Identity number is required")
-    @Positive(message = "Identity number should be positive")
-    private BigDecimal idno;
+    // @Positive(message = "Identity number should be positive")
+    private String idno;
+
+    @NotBlank(message = "First name is required")
+    private String firstName;
+
+    private String secondName;
 
     @NotBlank(message = "Title is required")
     private String title;
@@ -60,7 +69,7 @@ public class AuthorizationRequest {
     private String gender;
 
     @NotNull(message = "Date of birth is required")
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     private ArrayList<String> homeAdress = new ArrayList<>();
 
