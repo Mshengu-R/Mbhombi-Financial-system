@@ -10,6 +10,7 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class JWTService {
     private final Duration accessTokenExpiration;
     private final Clock clock;
 
+    @Autowired
     public JWTService(
             @Value("${security.jwt.secret}") String base64Secret,
             @Value("${security.jwt.access-token-expiration}")
@@ -90,6 +92,14 @@ public class JWTService {
      */
     public String generateToken(String username) {
         return generateToken(Map.of(), username);
+    }
+
+    /** Generates a token carrying the customer identifier shared by services. */
+    public String generateToken(String username, String customerId, String role) {
+        return generateToken(Map.of(
+                "customerId", customerId,
+                "role", role
+        ), username);
     }
 
     /**

@@ -38,7 +38,7 @@ public final class CustomerPrincipal implements UserDetails {
                 customer.getUsername(),
                 customer.getPassword(),
                 customer.getEmail(),
-                customer.getRole().name()
+                customer.getRole() == null ? "CUSTOMER" : customer.getRole().name()
         );
     }
 
