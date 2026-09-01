@@ -19,7 +19,7 @@ services:
 #    image: postgres:16
 #    environment:
 #       POSTGRES_USER: RisimaChabalala
-#       POSTGRES_PASSWORD: $Risima!!
+#       POSTGRES_PASSWORD: 
 #    ports:
 #       - "5432:5432"
 #    volumes:
