@@ -4,27 +4,18 @@
  */
 package com.banking.authenticationservice.dto;
 
-import com.banking.authenticationservice.entity.CustomerCountry;
-import com.banking.authenticationservice.entity.CustomerEthnicity;
-import com.banking.authenticationservice.entity.CustomerGender;
-import com.banking.authenticationservice.entity.CustomerLanguage;
-import com.banking.authenticationservice.entity.CustomerRole;
-import com.banking.authenticationservice.entity.CustomerTitle;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
  *
- * @author Dell
+ * @author Risima
  */
 @Data
 @NoArgsConstructor
@@ -34,7 +25,7 @@ public class AuthorizationRequest {
     @NotBlank(message = "User email is required")
     private String email;
 
-    @NotBlank(message = "Username is required")
+    // @NotBlank(message = "Username is required")
     private String username;
 
     @NotBlank(message = "Phone number is required")
@@ -52,10 +43,12 @@ public class AuthorizationRequest {
     @NotBlank(message = "Title is required")
     private String title;
 
-//    @NotBlank(message = "")
-   private String role;
+    //  @NotBlank(message = "")
+    private String role;
 
-    
+    // @NotNull(message = )
+    private String status;
+
     @NotBlank(message = "Surname is required")
     private String surname;
 
@@ -71,7 +64,10 @@ public class AuthorizationRequest {
     @NotNull(message = "Date of birth is required")
     private LocalDate dateOfBirth;
 
+    @NotNull(message = "Home adress is required")
     private ArrayList<String> homeAdress = new ArrayList<>();
+
+    private ArrayList<String> otherAdress = new ArrayList<>();
 
     @NotBlank(message = "Ethnicity is required")
     private String ethnicity;
@@ -84,4 +80,5 @@ public class AuthorizationRequest {
 
 //    @NotBlank(message = "Confirm password is required")
 //    private String confirmPassword;
+
 }

@@ -31,6 +31,8 @@ public class AuthorizationResponse {
 
     private String gender;
 
+    private String status;
+
     private LocalDate dateOfBirth;
 
     private ArrayList<String> homeAdress = new ArrayList<>();

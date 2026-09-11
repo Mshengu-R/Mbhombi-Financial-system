@@ -57,8 +57,7 @@ public class JWTService {
                 "JWT access-token expiration must not be null"
         );
 
-        if (accessTokenExpiration.isZero()
-                || accessTokenExpiration.isNegative()) {
+        if (accessTokenExpiration.isZero()  || accessTokenExpiration.isNegative()) {
             throw new IllegalArgumentException(
                     "JWT access-token expiration must be greater than zero"
             );
@@ -72,7 +71,9 @@ public class JWTService {
         byte[] decodedSecret;
 
         try {
+            
             decodedSecret = Decoders.BASE64.decode(base64Secret);
+
         } catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException(
                     "JWT secret must be valid Base64",

@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class CommunityMembershipResponse {
     
     private String id;
-     private String communityId;
+    private String communityId;
     private String customerId;
     private String name;
     private String creatorName;

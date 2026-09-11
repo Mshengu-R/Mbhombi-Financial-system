@@ -4,5 +4,6 @@ public enum CommunityAccountStatus{
     // account status values
     ACTIVE, 
     BLOCKED,
-    CLOSED
+    CLOSED,
+    LOCKED,
 }

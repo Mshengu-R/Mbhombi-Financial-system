@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.math.BigDecimal;
 
 /**
@@ -33,13 +37,14 @@ public class CommunityAccountController {
 
     private final CommunityAccountService communityAccountService;
 
-    @PostMapping("/community/{id}")
+    @PostMapping("/community/create")
     public ResponseEntity<CommunityAccountResponse> createAccount(
-        @PathVariable String id,
-    @Valid @RequestBody CommunityCreateAccountRequest request) {
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody CommunityCreateAccountRequest request) {
 
+        String creatorCustomerId = customerId(jwt);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(communityAccountService.createAccount(id, request));
+                .body(communityAccountService.createAccount(creatorCustomerId, request));
     }
 
     // ADDED: account-number lookup returns the account users can review before joining.
@@ -74,6 +79,14 @@ public class CommunityAccountController {
         return ResponseEntity.ok("Balance deducted successfully");
     }
 
+    @PutMapping("/{accountNumber}/lock")
+    public ResponseEntity<String> lockAccount(
+        @PathVariable String accountNumber) {
+            communityAccountService.lockAccount(accountNumber);
+            return ResponseEntity.ok("Account has been locked. \nClaims will be prohibited until the account is unlocked");
+        }
+
+
     @PutMapping("/{accountNumber}/credit")
     public ResponseEntity<String> creditBalance(
             @PathVariable String accountNumber,
@@ -85,8 +98,9 @@ public class CommunityAccountController {
     @PutMapping("/{accountNumber}/claim")
     public ResponseEntity<CommunityClaimResponse> claimFunds(
             @PathVariable String accountNumber,
-            @RequestParam String customerId,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam BigDecimal amount) {
+        String customerId = customerId(jwt);
         return ResponseEntity.ok(communityAccountService.claimFunds(accountNumber, customerId, amount));
     }
 
@@ -94,9 +108,27 @@ public class CommunityAccountController {
     @PutMapping("/{accountNumber}/description")
     public ResponseEntity<CommunityAccountResponse> updateDescription(
             @PathVariable String accountNumber,
-            @RequestParam String customerId,
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody CommunityDescriptionUpdateRequest request) {
+        String customerId = customerId(jwt);
         return ResponseEntity.ok(communityAccountService.updateDescription(accountNumber, customerId, request));
+    }
+
+    private String customerId(Jwt jwt) {
+        if (jwt == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Authenticated customer is required");
+        }
+        try {
+            String customerId = jwt.getClaimAsString("customerId");
+            if (customerId == null || customerId.isBlank()) {
+                throw new IllegalArgumentException("customerId claim is missing");
+            }
+            return customerId.trim();
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "JWT does not contain a valid customer ID", ex);
+        }
     }
 }
 

@@ -103,7 +103,7 @@ public class CommunityAccountService {
     }
 
 
-
+    // Map to response for the Community account using the response DTO
     private CommunityAccountResponse mapToResponse(CommunityAccount account) {
         CommunityAccountResponse response = new CommunityAccountResponse();
         response.setId(account.getId());
@@ -125,16 +125,19 @@ public class CommunityAccountService {
         
     }
 
+    // Central account repository for searching the account by its number
     private CommunityAccount findAccountByNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Account not found for account number: " + accountNumber));
     }
 
+
     public CommunityAccountResponse getAccount(String accountNumber) {
         return mapToResponse(findAccountByNumber(accountNumber));
     }
 
+    // Method for other methods which requires getting the balance for the user
     public BigDecimal getBalance(String accountNumber) {
         return findAccountByNumber(accountNumber).getBalance();
     }
@@ -222,6 +225,11 @@ public class CommunityAccountService {
         return mapToResponse(accountRepository.save(account));
     }
 
+  /*
+   * THE CODE BELOW
+   * - WHEN A CUSTOMER CREATES A COMMUNITY ACCOUNT
+   *  THE ACCOUNT SHOULD DEFUALT TO THE USER BEING THE ADMIN 
+   */  
     private void createCreatorMembership(CommunityAccount account, CommunityCreateAccountRequest request) {
         CommunityMembership membership = new CommunityMembership();
         membership.setCommunityId(account.getId());
@@ -236,6 +244,18 @@ public class CommunityAccountService {
         membership.setDailyTransactionLimit(account.getDailyTransactionLimit());
         membershipRepository.save(membership);
     }
+
+
+    
+    public void lockAccount(String accountNumber) {
+
+        log.info("locking account={}", accountNumber);
+        CommunityAccount account = findAccountByNumber(accountNumber);
+        account.setStatus(CommunityAccountStatus.LOCKED);
+        accountRepository.save(account);
+
+    }
+
 
     // Notifications for when users are claiming the money
     private void publishClaimNotification(CommunityAccount account, String claimantId, BigDecimal amount) {

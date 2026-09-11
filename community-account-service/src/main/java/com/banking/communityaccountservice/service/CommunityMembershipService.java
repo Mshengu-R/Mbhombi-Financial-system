@@ -59,6 +59,7 @@ public class CommunityMembershipService {
         return mapToResponse(membershipRepository.save(membership));
     }
 
+    // build up code for creating a membership
     private CommunityMembership buildMembership(CommunityAccount account, String customerId, 
                                                 JoinCommunityRequest request, CommunityMembership existing) {
         CommunityMembership membership = existing == null ? new CommunityMembership() : existing;
@@ -74,6 +75,7 @@ public class CommunityMembershipService {
         return membership;
     }
 
+    // Checking for user roles
     private CommunityMemberRole parseRole(String role) {
         if (role == null || role.isBlank()) {
             return CommunityMemberRole.MEMBER;
@@ -118,6 +120,7 @@ public class CommunityMembershipService {
 
 
      private CommunityAccount findAccountByNumber(String accountNumber) {
+        // log.info("");
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Account not found for account number: " + accountNumber));

@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,7 @@ import com.banking.authenticationservice.entity.CustomerEthnicity;
 import com.banking.authenticationservice.entity.CustomerGender;
 import com.banking.authenticationservice.entity.CustomerLanguage;
 import com.banking.authenticationservice.entity.CustomerRole;
+import com.banking.authenticationservice.entity.CustomerStatus;
 import com.banking.authenticationservice.entity.CustomerTitle;
 import com.banking.authenticationservice.repository.UserCredentialsRepository;
 import com.banking.authenticationservice.repository.ConsentRepository;
@@ -31,6 +34,8 @@ import com.banking.authenticationservice.security.CustomerPrincipal;
 public class AuthService {
 
         private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+        private static final CustomerStatus DEFAULT_CUSTOMER_STATUS = CustomerStatus.ACTIVE;
+        private static final CustomerRole DEFAULT_CUSTOMER_ROLE = CustomerRole.CUSTOMER;
 
     private final UserCredentialsRepository repository;
     private final PasswordEncoder passwordEncoder;
@@ -61,47 +66,47 @@ public class AuthService {
 public String saveUser(Customer customer) {
     Objects.requireNonNull(customer, "Customer must not be null");
 
-    if (customer.getUsername() == null
-            || customer.getUsername().isBlank()) {
-        throw new IllegalArgumentException(
-                "Username must not be empty"
-        );
-    }
+//     if (customer.getUsername() == null
+//             || customer.getUsername().isBlank()) {
+//         throw new IllegalArgumentException(
+//                 "Username must not be empty"
+//         );
+//     }
 
     if (customer.getEmail() == null || customer.getEmail().isBlank()) {
-        throw new IllegalArgumentException(
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Email must not be empty"
         );
     }
 
     if (customer.getPhone() == null
             || customer.getPhone().isBlank()) {
-        throw new IllegalArgumentException(
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Phone number must not be empty"
         );
     }
 
     if (customer.getPassword() == null
             || customer.getPassword().isBlank()) {
-        throw new IllegalArgumentException(
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Password must not be empty"
         );
     }
 
     if (repository.existsByUsername(customer.getUsername())) {
-        throw new IllegalStateException(
+        throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "Username is already registered"
         );
     }
 
     if (repository.existsByEmail(customer.getEmail())) {
-        throw new IllegalStateException(
+        throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "Email address is already registered"
         );
     }
 
     if (repository.existsByPhone(customer.getPhone())) {
-        throw new IllegalStateException(
+        throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "Phone number is already registered"
         );
     }
@@ -168,9 +173,10 @@ public String saveUser(Customer customer) {
      */
     public Customer buildCustomer(
             AuthorizationRequest request,
-            CustomerRole role,
+        //     CustomerRole role,
             CustomerCountry country,
             CustomerTitle title,
+        //     CustomerStatus status,
             CustomerLanguage language,
             CustomerGender gender,
             CustomerEthnicity ethnicity
@@ -183,16 +189,17 @@ public String saveUser(Customer customer) {
         Customer customer = new Customer();
 
         customer.setEmail(request.getEmail());
-        customer.setUsername(request.getUsername());
+        customer.setUsername(customer.getEmail());
         customer.setPassword(request.getPassword());
         customer.setFirstName(request.getFirstName());
         customer.setSecondName(request.getSecondName());
-        customer.setName(request.getFirstName() + " " + request.getSecondName());
+        customer.setName(request.getFirstName()+" "+request.getSecondName());
         customer.setDateOfBirth(request.getDateOfBirth());
         customer.setSurname(request.getSurname());
         customer.setIdNumber(request.getIdno());
         customer.setPhone(request.getPhone());
-        customer.setRole(role);
+        customer.setStatus(DEFAULT_CUSTOMER_STATUS);
+        customer.setRole(DEFAULT_CUSTOMER_ROLE);
         customer.setCountry(country);
         customer.setTitle(title);
         customer.setCustomerLanguage(language);
@@ -206,7 +213,10 @@ public String saveUser(Customer customer) {
         public Consent recordConsent(Customer customer, ConsentRequest request) {
                 if (consentRepository.existsByCustomerIdAndConsentTypeAndDocumentVersion(
                                 customer.getId(), request.getConsentType(), request.getDocumentVersion())) {
-                        throw new IllegalStateException("This consent version was already recorded");
+                        throw new ResponseStatusException(
+                                        HttpStatus.CONFLICT,
+                                        "This consent version was already recorded"
+                        );
                 }
                 Consent consent = new Consent();
                 consent.setCustomer(customer);
