@@ -3,9 +3,14 @@ package com.banking.communityaccountservice.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommunityMembershipResponse {
-    
     private String id;
     private String communityId;
     private String customerId;

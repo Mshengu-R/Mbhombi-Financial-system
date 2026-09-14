@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,10 +20,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "community_memberships", uniqueConstraints = {
-    @jakarta.persistence.UniqueConstraint(name = "sa_membership_community_customer",
+    @UniqueConstraint(name = "community_membership_community_customer",
         columnNames = {"community_id", "customer_id"})
 })
-// @Table(name = "community_memberships")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,11 +40,8 @@ public class CommunityMembership {
     @Column(name = "display_name", nullable = false)
     private String displayName;
 
-    @Column(nullable = false)
+    @Column(name = "account_number", nullable = false)
     private String accountNumber;
-
-    @Column(name = "member_name", nullable = false)
-    private String memberName;
 
     @Column(name = "bank_name", nullable = false)
     private String bankName;
@@ -53,19 +50,18 @@ public class CommunityMembership {
     @Column(nullable = false)
     private CommunityMemberRole role;
 
-    // @Column(nullable = false)
-    // private boolean privateCommunity;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CommunityMembershipStatus status;
 
-    @Column(nullable = false, precision = 15, scale = 4)
+    @Column(name = "daily_transaction_limit", nullable = false, precision = 15, scale = 4)
     private BigDecimal dailyTransactionLimit;
 
     @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }

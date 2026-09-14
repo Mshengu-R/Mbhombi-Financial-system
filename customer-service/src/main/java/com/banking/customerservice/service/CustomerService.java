@@ -1,13 +1,15 @@
 package com.banking.customerservice.service;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.banking.customerservice.dto.CustomerCreateRequest;
 import com.banking.customerservice.dto.CustomerResponse;
+import com.banking.customerservice.dto.CustomerUpdateRequest;
 import com.banking.customerservice.entity.Customer;
 import com.banking.customerservice.entity.CustomerCountry;
 import com.banking.customerservice.entity.CustomerEthnicity;
@@ -26,46 +28,73 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final NotificationService notificationService;
+    @Transactional(readOnly = true)
+    public CustomerResponse getAccount(UUID id) {
+        Customer customer = findByAuthCustomerId(id);
 
-    public CustomerResponse createAccount(CustomerCreateRequest request) {
+        return mapToResponse(customer);
+    }
+
+    @Transactional // this updates user details partially
+    public CustomerResponse updateAccount(UUID id, CustomerUpdateRequest request) {
         if (request == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile request is required");
         }
 
-        if (customerRepository.existsByEmail(request.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A profile already exists for this email address");
+        Customer customer = findByAuthCustomerId(id);
+
+        if (request.getPhone() != null && !request.getPhone().isBlank()) {
+            if (customerRepository.existsByPhoneAndId(request.getPhone(), id)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "A profile already exists for this phone number");
+            }
+            customer.setPhone(request.getPhone());
         }
 
-        if (customerRepository.existsByPhone(request.getPhone())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A profile already exists for this phone number");
+        // if (request.getName() != null) {
+        //     customer.setName(request.getName());
+        // }
+
+        if (request.getSurname() != null) {
+            customer.setSurname(request.getSurname());
         }
 
-        CustomerTitle customerTitle = parseCustomerTitle(request.getTitle());
-        CustomerLanguage customerLanguage = parseCustomerLanguage(request.getCustomerLanguage());
-        CustomerGender customerGender = parseCustomerGender(request.getGender());
-        CustomerEthnicity customerEthnicity = parseCustomerEthnicity(request.getEthnicity());
-        CustomerCountry customerCountry = parseCustomerCountry(request.getCountry());
+        // if (request.getDateOfBirth() != null) {
+        //     customer.setDateOfBirth(request.getDateOfBirth());
+        // }
 
-        Customer customer = buildAccount(request, customerTitle, customerLanguage, customerGender, customerEthnicity, customerCountry);
-        Customer savedCustomer = customerRepository.save(customer);
+        if (request.getCustomerLanguage() != null && !request.getCustomerLanguage().isBlank()) {
+            customer.setCustomerLanguage(parseCustomerLanguage(request.getCustomerLanguage()));
+        }
 
-        log.info("Customer profile created successfully for email={} phone={}", savedCustomer.getEmail(), savedCustomer.getPhone());
-        notificationService.sendProfileCreatedEmail(savedCustomer.getEmail(), savedCustomer.getName());
+        if (request.getEthnicity() != null && !request.getEthnicity().isBlank()) {
+            customer.setEthnicity(parseCustomerEthnicity(request.getEthnicity()));
+        }
 
-        return mapToResponse(savedCustomer);
+        if (request.getGender() != null && !request.getGender().isBlank()) {
+            customer.setGender(parseCustomerGender(request.getGender()));
+        }
+
+        if (request.getHomeAdress() != null) {
+            customer.setHomeAddress(new ArrayList<>(request.getHomeAdress()));
+        }
+
+        // customer.setCountry(parseCustomerCountry(request.getCountry()));
+
+        return mapToResponse(customerRepository.save(customer));
     }
 
-    private CustomerTitle parseCustomerTitle(String title) {
-        if (title == null || title.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title is required");
-        }
+    @Transactional
+    public void deleteAccount(UUID id) {
+        Customer customer = findByAuthCustomerId(id);
+        customerRepository.delete(customer);
+    }
 
-        try {
-            return CustomerTitle.valueOf(title.trim().toUpperCase());
-        } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid title: " + title, ex);
+    private Customer findByAuthCustomerId(UUID id) {
+        if (id == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authenticated customer is required");
         }
+        return customerRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer profile was not found"));
     }
 
     private CustomerLanguage parseCustomerLanguage(String language) {
@@ -104,52 +133,17 @@ public class CustomerService {
         }
     }
 
-    private CustomerCountry parseCustomerCountry(String country) {
-        if (country == null || country.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Country is required");
-        }
-
-        try {
-            return CustomerCountry.valueOf(country.trim().toUpperCase());
-        } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid country: " + country, ex);
-        }
-    }
-
-    private Customer buildAccount(CustomerCreateRequest request, CustomerTitle customerTitle,
-            CustomerLanguage customerLanguage, CustomerGender customerGender,
-            CustomerEthnicity customerEthnicity, CustomerCountry customerCountry) {
-        Customer customer = new Customer();
-        customer.setEmail(request.getEmail());
-        customer.setPhone(request.getPhone());
-        customer.setIdno(request.getIdno());
-        customer.setRole(CustomerRole.CUSTOMER);
-        customer.setTitle(customerTitle);
-        customer.setName(request.getName());
-        customer.setSurname(request.getSurname());
-        customer.setDateOfBirth(request.getDateOfBirth());
-        customer.setCustomerLanguage(customerLanguage);
-        customer.setEthnicity(customerEthnicity);
-        customer.setGender(customerGender);
-        customer.setCountry(customerCountry);
-
-        ArrayList<String> homeAddress = request.getHomeAdress() == null ? new ArrayList<>() : new ArrayList<>(request.getHomeAdress());
-        customer.setHomeAddress(homeAddress);
-        customer.setOtherAddress(new ArrayList<>());
-        return customer;
-    }
-
     private CustomerResponse mapToResponse(Customer customer) {
         CustomerResponse response = new CustomerResponse();
         response.setId(customer.getId());
         response.setEmail(customer.getEmail());
         response.setPhone(customer.getPhone());
-        response.setIdno(customer.getIdno());
+        // response.setIdNumber(customer.getIdNumber());
         response.setRole(customer.getRole().name());
         response.setTitle(customer.getTitle());
-        response.setName(customer.getName());
+        // response.setName(customer.getName());
         response.setSurname(customer.getSurname());
-        response.setDateOfBirth(customer.getDateOfBirth());
+        // response.setDateOfBirth(customer.getDateOfBirth());
         response.setCustomerLanguage(customer.getCustomerLanguage().name());
         response.setEthnicity(customer.getEthnicity());
         response.setGender(customer.getGender());

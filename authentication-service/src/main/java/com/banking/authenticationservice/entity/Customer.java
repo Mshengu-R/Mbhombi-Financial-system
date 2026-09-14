@@ -3,15 +3,19 @@ package com.banking.authenticationservice.entity;
 // import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 // import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -26,15 +30,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 
 @Entity
 @Table(name = "customer_profile")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
+public class Customer implements UserDetails{
 
- 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities(){
+        return List.of();
+    }
+
+
 @Id
 @GeneratedValue(strategy = GenerationType.UUID)
 private UUID id;
@@ -45,8 +55,8 @@ private UUID id;
     @Column(nullable = true)
     private String secondName;
     
-    @Column(nullable = false)
-    private String name;
+    // @Column(nullable = false)
+    // private String name;
 
     @Column(nullable = false)
     private String surname;
@@ -88,6 +98,10 @@ private UUID id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private CustomerStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private CustomerLanguage customerLanguage;
 
     @ElementCollection
@@ -110,6 +124,9 @@ private UUID id;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false)
     private String password;
+
+    // @ManyToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private Account Account;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

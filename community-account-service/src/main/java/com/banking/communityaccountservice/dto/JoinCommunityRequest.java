@@ -28,6 +28,9 @@ public class JoinCommunityRequest {
     @NotBlank(message = "Account number is required")
     private String accountNumber;
 
+    @NotBlank(message = "Pin is required")
+    private String pin;
+
     @NotNull(message = "Bank name is required")
     private String bankName;
 

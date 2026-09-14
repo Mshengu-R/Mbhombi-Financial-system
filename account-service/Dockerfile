@@ -1,6 +1,8 @@
+# ACCOUNT SERVICE DOCKER
+
 # Build stage
 FROM eclipse-temurin:25-jdk-alpine AS build
-WORKDIR /workspace
+WORKDIR /app
 
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
@@ -12,7 +14,8 @@ RUN chmod +x mvnw && ./mvnw -B clean package -DskipTests
 FROM eclipse-temurin:25-jre-alpine AS runtime
 WORKDIR /app
 
-COPY --from=build /workspace/target/account-service-0.0.1-SNAPSHOT.jar ./app.jar
+COPY --from=build /app/target/account-service-0.0.1-SNAPSHOT.jar ./app.jar
 
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# ENTRYPOINT ["java", "-jar", "/app/app.jar"] if the one on the bottom does not work we go back to this one
+ENTRYPOINT ["java", "-jar", "app.jar"]

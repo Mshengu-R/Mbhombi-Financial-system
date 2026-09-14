@@ -35,6 +35,8 @@ project.fragment.lock.json
 .vscode/
 *.code-workspace
 
+.env
+
 # Node
 node_modules/
 npm-debug.log*

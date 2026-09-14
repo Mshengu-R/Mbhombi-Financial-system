@@ -2,8 +2,9 @@ package com.banking.customerservice.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
+import java.util.UUID;
 
 import com.banking.customerservice.entity.CustomerCountry;
 import com.banking.customerservice.entity.CustomerEthnicity;
@@ -19,12 +20,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CustomerResponse {
 
-    private String id;
+    private UUID id;
     private String email;
     private String phone;
     private BigDecimal idno;
     private CustomerTitle title;
-    private String name;
+    // private String name;
     private String surname;
     private Date dateOfBirth;
     private String role;
@@ -32,11 +33,10 @@ public class CustomerResponse {
     private CustomerEthnicity ethnicity;
     private CustomerGender gender;
     private CustomerCountry country;
-    private ArrayList<String> homeAdress;
-    private ArrayList<String> otherAdress;
+    private List<String> homeAdress;
+    private List<String> otherAdress;
     private String password;
     private String confirmPassword;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
-

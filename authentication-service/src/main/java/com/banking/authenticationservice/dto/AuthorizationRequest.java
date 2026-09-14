@@ -52,8 +52,8 @@ public class AuthorizationRequest {
     @NotBlank(message = "Surname is required")
     private String surname;
 
-    @NotBlank(message = "Please enter your names as they appear in your Id")
-    private String name;
+    // @NotBlank(message = "Please enter your names as they appear in your Id")
+    // private String name;
 
     @NotBlank(message = "Language is required")
     private String customerLanguage;

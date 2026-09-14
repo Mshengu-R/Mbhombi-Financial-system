@@ -27,16 +27,14 @@ public class CommunityAccount {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    // CHANGED: this is a scalar creator/customer identifier, not a JPA relationship.
-    // CHANGED: a creator may own more than one community account.
-    @Column(nullable = false)
-    private String customerId;
-
     @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
     private String creatorName;
+
+    @Column(name = "customer_id", nullable = false)
+    private String customerId;
 
     @Column(nullable = false)
     private String description;
@@ -54,25 +52,24 @@ public class CommunityAccount {
     @Column(nullable = false)
     private CommunityAccountType accountType;
 
-    @Column(nullable = false)
-    private boolean privateCommunity;
+    @Column(name = "other_type")
+    private String otherType;
 
-    // CHANGED: join codes are created by the creator and are exactly six digits.
-    @Column(nullable = false, length = 6)
+    @Column(name = "join_code", nullable = false, length = 6)
     private String joinCode;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CommunityAccountStatus status;
 
-    @Column(name = "other_type", nullable = true)
-    private String otherType;
-
     @Column(nullable = false, precision = 15, scale = 4)
     private BigDecimal balance;
 
     @Column(nullable = false, precision = 15, scale = 4)
     private BigDecimal dailyTransactionLimit;
+
+    @Column(name = "pin", nullable = false, length = 4)
+    private String pin;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

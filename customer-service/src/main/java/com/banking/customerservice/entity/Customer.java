@@ -1,13 +1,19 @@
 package com.banking.customerservice.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,22 +21,36 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table( name = "customer_Profile")
+@Table( name = "customer_profile")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Customer {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+@Id
+@GeneratedValue(strategy = GenerationType.UUID)
+private UUID id;
+    
+    @Column(nullable = false)
+    private String firstName;
+    
+    @Column(nullable = true)
+    private String secondName;
+    
+    // @Column(nullable = false)
+    // private String name;
 
+    @Column(nullable = false)
+    private String surname;
+    
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -41,26 +61,14 @@ public class Customer {
     private String username;
     
     @Column(nullable = false)
-    private BigDecimal idno;
+    private String idNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CustomerTitle title;
 
     @Column(nullable = false)
-    private String firstName;
-    
-    @Column(nullable = true)
-    private String secondName;
-    
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private String surname;
-
-    @Column(nullable = false)
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -80,20 +88,35 @@ public class Customer {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private CustomerStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private CustomerLanguage customerLanguage;
 
-    @Column(nullable = false)
-    private ArrayList<String> homeAddress = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(
+    name = "customer_home_addresses",
+    joinColumns = @JoinColumn(name = "customer_id")
+    )
+    @Column(name = "address")
+    private List<String> homeAddress;
 
-    @Column(nullable = false)
-    private ArrayList<String> otherAddress = new ArrayList<>();
-  
+
+    @ElementCollection
+    @CollectionTable(
+    name = "customer_other_addresses",
+    joinColumns = @JoinColumn(name = "customer_id")
+    )
+    @Column(name = "address")
+    private List<String> otherAddress;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String confirmPassword;
-
+    // @ManyToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private Account Account;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -101,4 +124,3 @@ public class Customer {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
-

@@ -5,6 +5,9 @@ import com.banking.communityaccountservice.dto.CommunityCreateAccountRequest;
 import com.banking.communityaccountservice.dto.CommunityAccountResponse;
 import com.banking.communityaccountservice.dto.CommunityClaimResponse;
 import com.banking.communityaccountservice.dto.CommunityDescriptionUpdateRequest;
+import com.banking.communityaccountservice.dto.CommunityMembershipResponse;
+
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -56,6 +60,29 @@ public class CommunityAccountController {
     @GetMapping("/{accountNumber}/balance")
     public ResponseEntity<BigDecimal> getBalance(@PathVariable String accountNumber) {
         return ResponseEntity.ok(communityAccountService.getBalance(accountNumber));
+    }
+
+    @GetMapping("/{accountNumber}/members")
+    public ResponseEntity<List<CommunityMembershipResponse>> getMembers(@PathVariable String accountNumber) {
+        return ResponseEntity.ok(communityAccountService.getMembers(accountNumber));
+    }
+
+    @PutMapping("/{accountNumber}/update")
+    public ResponseEntity<CommunityAccountResponse> updateCommunity(
+            @PathVariable String accountNumber,
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody CommunityDescriptionUpdateRequest request) {
+        String creatorCustomerId = customerId(jwt);
+        return ResponseEntity.ok(communityAccountService.updateCommunity(accountNumber, creatorCustomerId, request));
+    }
+
+    @DeleteMapping("/{accountNumber}")
+    public ResponseEntity<String> deleteCommunity(
+            @PathVariable String accountNumber,
+            @AuthenticationPrincipal Jwt jwt) {
+        String creatorCustomerId = customerId(jwt);
+        communityAccountService.deleteCommunity(accountNumber, creatorCustomerId);
+        return ResponseEntity.ok("Community account and memberships deleted successfully");
     }
 
 

@@ -25,7 +25,7 @@ public class AuthorizationResponse {
     
     private String surname;
 
-    private String name;
+    // private String name;
 
     private String customerLanguage;
 

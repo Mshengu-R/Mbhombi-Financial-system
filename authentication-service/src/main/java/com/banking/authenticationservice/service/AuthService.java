@@ -173,10 +173,10 @@ public String saveUser(Customer customer) {
      */
     public Customer buildCustomer(
             AuthorizationRequest request,
-        //     CustomerRole role,
+            CustomerRole role,
             CustomerCountry country,
             CustomerTitle title,
-        //     CustomerStatus status,
+            CustomerStatus status,
             CustomerLanguage language,
             CustomerGender gender,
             CustomerEthnicity ethnicity
@@ -193,13 +193,13 @@ public String saveUser(Customer customer) {
         customer.setPassword(request.getPassword());
         customer.setFirstName(request.getFirstName());
         customer.setSecondName(request.getSecondName());
-        customer.setName(request.getFirstName()+" "+request.getSecondName());
+        // customer.setName(request.getName());
         customer.setDateOfBirth(request.getDateOfBirth());
         customer.setSurname(request.getSurname());
         customer.setIdNumber(request.getIdno());
         customer.setPhone(request.getPhone());
-        customer.setStatus(DEFAULT_CUSTOMER_STATUS);
-        customer.setRole(DEFAULT_CUSTOMER_ROLE);
+        customer.setStatus(CustomerStatus.ACTIVE);
+        customer.setRole(CustomerRole.CUSTOMER);
         customer.setCountry(country);
         customer.setTitle(title);
         customer.setCustomerLanguage(language);

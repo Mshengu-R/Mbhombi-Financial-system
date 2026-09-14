@@ -4,6 +4,7 @@ import com.banking.communityaccountservice.dto.CommunityAccountResponse;
 import com.banking.communityaccountservice.dto.CommunityCreateAccountRequest;
 import com.banking.communityaccountservice.dto.CommunityClaimResponse;
 import com.banking.communityaccountservice.dto.CommunityDescriptionUpdateRequest;
+import com.banking.communityaccountservice.dto.CommunityMembershipResponse;
 import com.banking.communityaccountservice.entity.CommunityAccount;
 import com.banking.communityaccountservice.entity.CommunityAccountStatus;
 import com.banking.communityaccountservice.entity.CommunityAccountType;
@@ -40,7 +41,7 @@ public class CommunityAccountService {
     private static final BigDecimal SAVINGS_TRANSACTION_LIMIT = new BigDecimal("100000");
     private static final BigDecimal DEFAULT_TRANSACTION_LIMIT = new BigDecimal("500000");
     private static final String COMMUNITY_CLAIMED_TOPIC = "community.funds.claimed";
-    private static final boolean PrivateAcc = true;
+    // private static final boolean PrivateAcc = true;
 
     private final CommunityAccountRepository accountRepository;
     private final CommunityMembershipRepository membershipRepository;
@@ -54,10 +55,12 @@ public class CommunityAccountService {
         validateRequired(creatorCustomerId, "Creator customer id");
         CommunityAccountType accountType = parseAccountType(request.getAccountType());
         CommunityAccount account = buildAccount(request, accountType);
-        account.setCustomerId(creatorCustomerId.trim());
+        account.setCustomerId(creatorCustomerId);
 
         CommunityAccount savedAccount = accountRepository.save(account);
         createCreatorMembership(savedAccount, request);
+        publishCommunityActivity(savedAccount, "COMMUNITY_CREATED", creatorCustomerId,
+                "Community account created", savedAccount.getBalance());
         log.info("Community account created accountNumber={}", savedAccount.getAccountNumber());
         return mapToResponse(savedAccount);
     }
@@ -90,11 +93,11 @@ public class CommunityAccountService {
         account.setBankName(DEFAULT_BANK_NAME);
         account.setAccountType(accountType);
         account.setOtherType(accountType == CommunityAccountType.OTHER ? request.getOtherType() : null);
-        // account.setPrivateCommunity(request.isPrivateCommunity());
         account.setJoinCode(normalizeJoinCode(request.getJoinCode()));
         account.setStatus(CommunityAccountStatus.ACTIVE);
         account.setBalance(request.getInitialDeposit());
         account.setAccountNumber(generateAccountNumber());
+        account.setPin(normalizePin(request.getPin()));
     
         account.setDailyTransactionLimit(accountType == CommunityAccountType.STOKVEL
                 ? SAVINGS_TRANSACTION_LIMIT
@@ -140,6 +143,52 @@ public class CommunityAccountService {
     // Method for other methods which requires getting the balance for the user
     public BigDecimal getBalance(String accountNumber) {
         return findAccountByNumber(accountNumber).getBalance();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommunityMembershipResponse> getMembers(String accountNumber) {
+        CommunityAccount account = findAccountByNumber(accountNumber);
+        return membershipRepository.findByCommunityId(account.getId())
+                .stream()
+                .map(this::mapMembershipToResponse)
+                .toList();
+    }
+
+    @Transactional
+    public CommunityAccountResponse updateCommunity(String accountNumber, String customerId,
+                                                     CommunityDescriptionUpdateRequest request) {
+        CommunityAccount account = findAccountByNumber(accountNumber);
+        validateRequired(customerId, "Customer id");
+        if (!account.getCustomerId().equals(customerId.trim())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Only the community creator can update this community account.");
+        }
+        if (request.getDescription() != null && !request.getDescription().isBlank()) {
+            account.setDescription(request.getDescription().trim());
+        }
+        if (request.getRulesDescription() != null && !request.getRulesDescription().isBlank()) {
+            account.setRulesDescription(request.getRulesDescription().trim());
+        }
+        CommunityAccount updated = accountRepository.save(account);
+        publishCommunityActivity(updated, "COMMUNITY_UPDATED", customerId,
+                "Community account description/rules were updated", updated.getBalance());
+        return mapToResponse(updated);
+    }
+
+    @Transactional
+    public void deleteCommunity(String accountNumber, String customerId) {
+        CommunityAccount account = findAccountByNumber(accountNumber);
+        validateRequired(customerId, "Customer id");
+        if (!account.getCustomerId().equals(customerId.trim())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Only the community creator can delete this community account.");
+        }
+        List<CommunityMembership> membershipRows = membershipRepository.findByCommunityId(account.getId());
+        membershipRepository.deleteAll(membershipRows);
+        accountRepository.delete(account);
+        publishCommunityActivity(account, "COMMUNITY_DELETED", customerId,
+                "Community account and memberships were deleted", account.getBalance());
+        log.info("Community account deleted accountNumber={} customerId={}", accountNumber, customerId);
     }
 
     @Transactional
@@ -192,21 +241,21 @@ public class CommunityAccountService {
         validateAccountActive(accountNumber, account);
         validateAmount(amount, "Claim amount must be greater than zero.");
         validateRequired(customerId, "Customer id");
-     
+
         CommunityMembership membership = membershipRepository
-                .findByCommunityIdAndCustomerId(account.getId(), customerId.trim())
+                .findByCommunityIdAndCustomerId(account.getId(), customerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
                         "Customer is not a member of this community."));
-       
-                        if (membership.getStatus() != CommunityMembershipStatus.JOINED) {
+
+        if (membership.getStatus() != CommunityMembershipStatus.JOINED) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customer is not an active member of this community.");
         }
 
         validateSufficientBalance(account, amount);
         account.setBalance(account.getBalance().subtract(amount));
         CommunityAccount savedAccount = accountRepository.save(account);
-        publishClaimNotification(savedAccount, customerId.trim(), amount);
-        return new CommunityClaimResponse(accountNumber, customerId.trim(), amount, savedAccount.getBalance());
+        publishClaimNotification(savedAccount, customerId, amount);
+        return new CommunityClaimResponse(accountNumber, customerId, amount, savedAccount.getBalance());
     }
 
     // ADDED: creator-only description update, identified by the stored creator customer ID.
@@ -277,8 +326,50 @@ public class CommunityAccountService {
         kafkaTemplate.send(COMMUNITY_CLAIMED_TOPIC, account.getAccountNumber(), event);
     }
 
-    private void validateRequired(String value, String fieldName) {
-        if (value == null || value.isBlank()) {
+    private CommunityMembershipResponse mapMembershipToResponse(CommunityMembership membership) {
+        CommunityMembershipResponse response = new CommunityMembershipResponse();
+        response.setId(membership.getId());
+        response.setCommunityId(membership.getCommunityId());
+        response.setCustomerId(membership.getCustomerId());
+        response.setDisplayName(membership.getDisplayName());
+        response.setAccountNumber(membership.getAccountNumber());
+        response.setRole(membership.getRole().name());
+        response.setStatus(membership.getStatus().name());
+        response.setDailyTransactionLimit(membership.getDailyTransactionLimit());
+        response.setCreatedAt(membership.getCreatedAt());
+        response.setUpdatedAt(membership.getUpdatedAt());
+        return response;
+    }
+
+    private void publishCommunityActivity(CommunityAccount account, String eventType,
+                                           String actorCustomerId, String message, BigDecimal balance) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventType", eventType);
+        event.put("communityId", account.getId());
+        event.put("accountNumber", account.getAccountNumber());
+        event.put("creatorCustomerId", account.getCustomerId());
+        event.put("actorCustomerId", actorCustomerId);
+        event.put("message", message);
+        event.put("balance", balance);
+        event.put("createdAt", java.time.LocalDateTime.now());
+        kafkaTemplate.send("community.activity", account.getAccountNumber(), event);
+        log.info("Published community activity event topic=community.activity eventType={} accountNumber={}",
+                eventType, account.getAccountNumber());
+    }
+
+    private String normalizePin(String pin) {
+        if (pin == null || pin.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pin is required.");
+        }
+        String normalized = pin.trim();
+        if (normalized.length() != 4 || !normalized.matches("\\d+")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pin must be exactly four digits.");
+        }
+        return normalized;
+    }
+
+    private void validateRequired(String creatorCustomerId, String fieldName) {
+        if (creatorCustomerId == null || creatorCustomerId.toString().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " is required.");
         }
     }

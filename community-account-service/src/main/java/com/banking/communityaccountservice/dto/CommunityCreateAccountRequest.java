@@ -21,8 +21,8 @@ public class CommunityCreateAccountRequest {
     private String creatorName;
 
     // ADDED: identifies the customer who owns/creates this community account.
-    @NotBlank(message = "Creator customer id is required")
-    private String customerId;
+    // @NotBlank(message = "Creator customer id is required")
+    // private String customerId;
 
     @NotBlank(message = "Community description is required")
     private String description;
