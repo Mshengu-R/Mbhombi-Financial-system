@@ -20,7 +20,7 @@ public class CommunityAccountResponse {
     private String creatorName;
     private String description;
     private String rulesDescription;
-    // private String displayName;
+    private String displayName;
     private String accountNumber;
     private String bankName;
     private String otherType;

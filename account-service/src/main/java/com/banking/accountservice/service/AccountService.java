@@ -181,6 +181,7 @@ public class AccountService {
         }
     }
 
+    // Generates a unique 12-digit account number.
     private String generateAccountNumber() {
         String accountNumber;
         do {

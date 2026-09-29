@@ -283,7 +283,7 @@ public class CommunityAccountService {
         CommunityMembership membership = new CommunityMembership();
         membership.setCommunityId(account.getId());
         membership.setCustomerId(account.getCustomerId());
-        // membership.setDisplayName(request.getDisplayName().trim());
+        membership.setDisplayName(account.getCreatorName());
         membership.setAccountNumber(account.getAccountNumber());
         membership.setBankName(account.getBankName());
         // CHANGED: ADMIN is the existing role representing the creator.
@@ -415,4 +415,5 @@ public class CommunityAccountService {
         } while (accountRepository.existsByAccountNumber(communityAccountNumber));
         return communityAccountNumber;
     }
+    
 }

@@ -50,7 +50,7 @@ public class Customer implements UserDetails{
 private UUID id;
     
     @Column(nullable = false)
-    private String firstName;
+    private String fullNames;
     
     @Column(nullable = true)
     private String secondName;
@@ -127,6 +127,14 @@ private UUID id;
 
     // @ManyToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     // private Account Account;
+
+    // @ElementCollection
+    // @CollectionTable(
+    // name = "customer_consents",
+    // joinColumns = @JoinColumn(name = "customer_id")
+    // )
+    // @Column(name = "address")
+    // private String consents;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

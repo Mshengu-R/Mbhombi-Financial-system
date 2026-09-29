@@ -5,6 +5,15 @@ desktop.ini
 ehthumbs.db
 $RECYCLE.BIN/
 
+*.env
+
+# Database & sensitive files
+.env.local
+.env.*.local
+.env.production
+.env.staging
+nginx-1.28.3
+
 # Visual Studio / .NET
 .vs/
 *.user

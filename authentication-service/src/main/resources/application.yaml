@@ -1,11 +1,14 @@
+
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: authentication-service
 
   datasource:
-    url: ${AUTH_DB_URL}
-    username: ${AUTH_DB_USERNAME}
-    password: ${AUTH_DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/customer_db
+    username: postgres
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -18,9 +21,9 @@ spring:
         format_sql: true
   
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    bootstrap-servers: localhost:9092
     consumer:
-      group-id: ${KAFKA_CONSUMER_GROUP_ID}
+      group-id: ${KAFKA_GROUP_ID}
       auto-offset-reset: earliest 
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -35,13 +38,18 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   
+sql:
+  init:
+    mode: always
 
 security:
    jwt:
-     secret: ${AUTH_SECRET_KEY}
-     access-token-expiration: ${AUTH_ACCESS_TOKEN_EXPIRATION}   # 900 seconds = 15 minutes
+    secret: ${JWT_SECRET}
+    access-token-expiration: 15m
 
+frontend:
+  service:
+    url: ${FRONTEND_URL}
 
 server:
-  port: ${AUTH_SERVICE_PORT}
-
+  port: ${AUTH_SERVICE_SERVER:8089}

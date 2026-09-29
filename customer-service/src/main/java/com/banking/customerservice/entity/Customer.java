@@ -40,7 +40,7 @@ public class Customer {
 private UUID id;
     
     @Column(nullable = false)
-    private String firstName;
+    private String fullNames;
     
     @Column(nullable = true)
     private String secondName;

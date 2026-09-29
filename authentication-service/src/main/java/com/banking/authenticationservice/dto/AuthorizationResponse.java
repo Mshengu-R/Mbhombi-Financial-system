@@ -2,9 +2,16 @@ package com.banking.authenticationservice.dto;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthorizationResponse {
         
     private String email;
@@ -35,7 +42,7 @@ public class AuthorizationResponse {
 
     private LocalDate dateOfBirth;
 
-    private ArrayList<String> homeAdress = new ArrayList<>();
+    private List<String> homeAdress = new ArrayList<>();
 
     private String ethnicity;
 

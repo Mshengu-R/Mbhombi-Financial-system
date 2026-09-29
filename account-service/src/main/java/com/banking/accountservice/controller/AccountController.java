@@ -91,9 +91,8 @@ public class AccountController {
         accountService.creditBalance(accountNumber, amount);
         return ResponseEntity.ok("Balance has been credited to the receiver successfully");
     }
+        
 
     
-
-        
 
 }

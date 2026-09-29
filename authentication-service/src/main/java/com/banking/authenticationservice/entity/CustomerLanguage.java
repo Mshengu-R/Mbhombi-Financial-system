@@ -8,6 +8,8 @@ public enum CustomerLanguage {
     XHOSA,
     SEPEDI,
     SESOTHO,
+    ISISWATI,
+    ISINDEBELE,
     SETSWANA,
     VENDA,
     AFRIKAANS,

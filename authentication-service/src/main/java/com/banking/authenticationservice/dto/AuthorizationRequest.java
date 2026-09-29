@@ -35,8 +35,8 @@ public class AuthorizationRequest {
     // @Positive(message = "Identity number should be positive")
     private String idno;
 
-    @NotBlank(message = "First name is required")
-    private String firstName;
+    @NotBlank(message = "Full names are required")
+    private String fullNames;
 
     private String secondName;
 
@@ -44,10 +44,10 @@ public class AuthorizationRequest {
     private String title;
 
     //  @NotBlank(message = "")
-    private String role;
+    // private String role;
 
     // @NotNull(message = )
-    private String status;
+    // private String status;
 
     @NotBlank(message = "Surname is required")
     private String surname;

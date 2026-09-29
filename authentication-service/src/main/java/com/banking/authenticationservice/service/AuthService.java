@@ -79,6 +79,10 @@ public String saveUser(Customer customer) {
         );
     }
 
+        customer.setUsername(customer.getEmail());
+        customer.setStatus(DEFAULT_CUSTOMER_STATUS);
+        customer.setRole(DEFAULT_CUSTOMER_ROLE);
+
     if (customer.getPhone() == null
             || customer.getPhone().isBlank()) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -118,7 +122,7 @@ public String saveUser(Customer customer) {
     repository.save(customer);
         log.info("Registered customer username={} customerId={}", customer.getUsername(), customer.getId());
 
-    return "Customer credentials have been saved successfully";
+    return "Customer credentials have been saved successfully. Your username is your email address.";
 }
 
 
@@ -191,15 +195,15 @@ public String saveUser(Customer customer) {
         customer.setEmail(request.getEmail());
         customer.setUsername(customer.getEmail());
         customer.setPassword(request.getPassword());
-        customer.setFirstName(request.getFirstName());
+        customer.setFullNames(request.getFullNames());
         customer.setSecondName(request.getSecondName());
         // customer.setName(request.getName());
         customer.setDateOfBirth(request.getDateOfBirth());
         customer.setSurname(request.getSurname());
         customer.setIdNumber(request.getIdno());
         customer.setPhone(request.getPhone());
-        customer.setStatus(CustomerStatus.ACTIVE);
-        customer.setRole(CustomerRole.CUSTOMER);
+        customer.setStatus(DEFAULT_CUSTOMER_STATUS);
+        customer.setRole(DEFAULT_CUSTOMER_ROLE);
         customer.setCountry(country);
         customer.setTitle(title);
         customer.setCustomerLanguage(language);
