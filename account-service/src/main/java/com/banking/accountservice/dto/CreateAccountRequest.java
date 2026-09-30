@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -17,9 +16,6 @@ public class CreateAccountRequest {
 
     @NotBlank(message = "Account holder name is required")
     private String accountHolderName;
-
-    @NotNull(message = "UserId is required")
-    private String customerId;
 
     @NotBlank(message = "Phone number is required")
     private String phone;

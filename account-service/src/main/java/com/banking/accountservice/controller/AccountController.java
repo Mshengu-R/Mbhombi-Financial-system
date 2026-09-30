@@ -7,9 +7,12 @@ import com.banking.accountservice.dto.AccountResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,13 +35,16 @@ public class AccountController {
     
     private final AccountService accountService;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<AccountResponse> createAccount(
         @Valid
+        @AuthenticationPrincipal Jwt jwt,
         @RequestBody
         CreateAccountRequest request) {
+
+        String creatorCustomerId = customerId(jwt);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(accountService.createAccount(request));
+                .body(accountService.createAccount(creatorCustomerId, request));
     }
 
 
@@ -93,6 +99,21 @@ public class AccountController {
     }
         
 
-    
+       private String customerId(Jwt jwt) {
+        if (jwt == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Authenticated customer is required");
+        }
+        try {
+            String customerId = jwt.getClaimAsString("customerId");
+            if (customerId == null || customerId.isBlank()) {
+                throw new IllegalArgumentException("customerId claim is missing");
+            }
+            return customerId.trim();
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "JWT does not contain a valid customer ID", ex);
+        }
+    } 
 
 }

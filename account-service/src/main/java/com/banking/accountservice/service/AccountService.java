@@ -28,28 +28,27 @@ public class AccountService {
     private static final String DEFAULT_BANK_NAME = "Mbhombi Bank";
     private static final BigDecimal SAVINGS_TRANSACTION_LIMIT = new BigDecimal("100000");
     private static final BigDecimal DEFAULT_TRANSACTION_LIMIT = new BigDecimal("500000");
-    private static final String currency = "ZAR";
+    private static final String CURRENCY = "ZAR";
 
     private final AccountRepository accountRepository;
 
     /**
      * Create a new account from the incoming request.
      *
+    * @param customerId identifier from the authenticated user's JWT
      * @param request request body payload with account information
      * @return created account details
      */
     @Transactional
-    public AccountResponse createAccount(CreateAccountRequest request) {
-        log.info("Creating account for customer={}", request.getCustomerId());
-
-        // if (accountRepository.existsByAccountId(request.getPhone())) {
-        //     log.warn("Account with email {} already exists", request.getEmail());
-        //     throw new ResponseStatusException(HttpStatus.CONFLICT,
-        //             "Account with email \"" + request.getEmail() + "\" already exists");
-        // }
+    public AccountResponse createAccount(String customerId, CreateAccountRequest request) {
+        if (customerId == null || customerId.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Authenticated customer is required");
+        }
+        log.info("Creating account for customer={}", customerId);
 
         AccountType accountType = parseAccountType(request.getAccountType());
-        Account account = buildAccount(request, accountType);
+        Account account = buildAccount(request, accountType, customerId);
 
         Account savedAccount = accountRepository.save(account);
         log.info("Account created accountNumber={}", savedAccount.getAccountNumber());
@@ -71,12 +70,12 @@ public class AccountService {
     }
 
     // Builds an Account entity from the request and account type.
-    private Account buildAccount(CreateAccountRequest request, AccountType accountType) {
+    private Account buildAccount(CreateAccountRequest request, AccountType accountType, String customerId) {
         Account account = new Account();
         account.setAccountHolderName(request.getAccountHolderName());
         account.setPhone(request.getPhone());
-        account.setCurrency(currency);
-        account.setCustomerId(request.getCustomerId());
+        account.setCurrency(CURRENCY);
+        account.setCustomerId(customerId);
         account.setBankName(DEFAULT_BANK_NAME);
         account.setPin(request.getPin());
         account.setAccountType(accountType);

@@ -29,6 +29,9 @@ The Account Service is the core banking microservice responsible for account lif
 | CHECKING | ZAR 500,000 | Daily transaction accounts |
 | INVESTMENT | ZAR 500,000 | Investment-focused accounts |
 
+##
+JWT for authenticating the user
+
 ### Design Patterns
 
 - **Service-Oriented Architecture**: Independent deployment, own database
@@ -44,7 +47,6 @@ POST /api/v1/accounts
 Content-Type: application/json
 
 {
-  "customerId": "uuid-string",
   "accountHolderName": "John Doe",
   "phone": "+27791234567",
   "accountType": "SAVINGS"
