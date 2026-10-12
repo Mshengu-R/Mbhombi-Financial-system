@@ -2,9 +2,11 @@ package com.banking.customerservice.entity;
 
 
 public enum CustomerEthnicity {
-    INDIAN,
     AFRICAN,
-    SPANISH,
-    WHITE,
-    ASIAN
+    ASIAN,
+    CAUCASIAN,
+    EUROPEAN,
+    INDIAN,
+    MIXED,
+    AMERICAN
 }

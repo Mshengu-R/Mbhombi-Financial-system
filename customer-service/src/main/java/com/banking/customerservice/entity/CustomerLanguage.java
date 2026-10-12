@@ -1,17 +1,22 @@
 package com.banking.customerservice.entity;
 
 public enum CustomerLanguage {
+    SPANISH,
     ENGLISH,
     XITSONGA,
-    SETSWANA,
-    SESOTHO,
-    ISIZULU,
-    TSHIVENDA,
-    ISINDEBELE,
+    ZULU,
+    XHOSA,
     SEPEDI,
-    ISIXHOSA,
-    SPANISH,
-    RUSSIAN,
+    SESOTHO,
+    ISISWATI,
+    ISINDEBELE,
+    SETSWANA,
+    VENDA,
+    AFRIKAANS,
     FRENCH,
-    AFRIKAANS
+    PORTUGUESE,
+    ARABIC,
+    CHINESE,
+    HINDI,
+    RUSSIAN
 }
