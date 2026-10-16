@@ -54,6 +54,16 @@ public class AccountController {
         return ResponseEntity.ok(accountService.getAccount(accountNumber));
     }
 
+    @GetMapping("/")
+    public ResponseEntity<AccountResponse> getAccountByUserId(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String customerId = customerId(jwt);
+        return ResponseEntity.ok(accountService.getAccountByUserId(customerId));
+    }
+
+    
+
     @GetMapping("/{accountNumber}/balance")
     public ResponseEntity<BigDecimal> getBalance(
         @PathVariable String accountNumber) {

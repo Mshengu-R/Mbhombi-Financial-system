@@ -55,6 +55,7 @@ public class AccountService {
         return mapToResponse(savedAccount);
     }
 
+    // Validating user requests
     private AccountType parseAccountType(String accountTypeName) {
         if (accountTypeName == null || accountTypeName.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -102,19 +103,41 @@ public class AccountService {
         return response;
     }
 
+
+    // Aim is for the user to get their accounts without having to search for it
+    private Account findAccountByCustomerId(String customerId) {
+        return accountRepository.findAccountByCustomerId(customerId)
+
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "No account found."));
+    }
+
     private Account findAccountByNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
+        // if account does not exist
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Account not found for account number: " + accountNumber));
     }
 
+    /*
+     * Get mappings
+    */ 
     public AccountResponse getAccount(String accountNumber) {
         return mapToResponse(findAccountByNumber(accountNumber));
+    }
+
+    public AccountResponse getAccountByUserId(String customerId) {
+        return mapToResponse(findAccountByCustomerId(customerId));
+    }
+
+    public BigDecimal getBalanceByUserId(String customerId) {
+        return findAccountByCustomerId(customerId).getBalance();
     }
 
     public BigDecimal getBalance(String accountNumber) {
         return findAccountByNumber(accountNumber).getBalance();
     }
+
 
     @Transactional
     public void blockAccount(String accountNumber) {
@@ -133,6 +156,7 @@ public class AccountService {
         accountRepository.save(account);
     }
 
+    // When a transaction is made this method is called to deduct balance from the user
     @Transactional
     public void deductBalance(String accountNumber, BigDecimal amount) {
         log.info("Deducting amount {} from account={}", amount, accountNumber);
@@ -147,6 +171,7 @@ public class AccountService {
         log.info("Deduction successful. New balance for account {} is {}", accountNumber, account.getBalance());
     }
 
+    // When the customer makes things such as deposit or recieve the money transfered
     @Transactional
     public void creditBalance(String accountNumber, BigDecimal amount) {
         log.info("Crediting amount {} to account={}", amount, accountNumber);
@@ -158,6 +183,7 @@ public class AccountService {
         log.info("Credit successful. New balance for account {} is {}", accountNumber, account.getBalance());
     }
 
+    // When transaction is made this method is called to check whether the account exists or not
     private void validateAccountActive(String accountNumber, Account account) {
         if (account.getStatus() != AccountStatus.ACTIVE) {
             log.warn("Attempted operation on non-active account={}", accountNumber);
@@ -166,12 +192,14 @@ public class AccountService {
         }
     }
 
+    // Check amount which the customer inteds to send 
     private void validateAmount(BigDecimal amount, String errorMessage) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
         }
     }
 
+    // Check whehter the amount sent available in the user's account
     private void validateSufficientBalance(Account account, BigDecimal amount) {
         if (account.getBalance().compareTo(amount) < 0) {
             log.warn("Insufficient funds for account={} currentBalance={}", account.getAccountNumber(), account.getBalance());
