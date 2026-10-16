@@ -26,7 +26,7 @@ THE ACCOUNT MINIMUM SHOULD BE 3 PEOPLE, AND MAXIMUM SHOULD BE 50
 
 
 # PAYMENT GATEWAY
-- PAYFAST / RAZORPAY
+- PAYFAST
 
 ## ARCHITECTURE
 - THE SERVICE SHOULD BE DIVIDED INTO MICROSERVICES
@@ -45,7 +45,7 @@ WHERE THERE WOULD BE SERCIVES SUCH AS
 - FRAUD DETECTION SERVICE
 
 # AND THERE WILL ALSO BE FRONTEND
-- ReactJs? 
+- ReactJs
 
 # LANGUAGES AND FRAMEWORKS
 - YML FOR FOR SOAP API TO ENFORCE STRICT TRANSACTIONS
@@ -61,6 +61,7 @@ DOCKER FOR CONTAINERIZING
 - postgres
 - for its acidity and relationships
 - Then noSQL database for loging and fraud preventions
+
 # MODEL
 - Entity relationship
  
@@ -70,7 +71,7 @@ DOCKER FOR CONTAINERIZING
 - GIT LAB
 
 # CLoud
-- AWS/CLOUD ON DEMAND SINCE EARLY STAGES IT IS MEANT FOR THE FNB ACADEMY
+- AWS
 
 ## FRAUD DETECTION
 - LISTEN TO INITIATED TRANSACTIONS
@@ -190,5 +191,3 @@ DOCKER FOR CONTAINERIZING
 - Relying on runtime proxies can complicate AOT/native builds unless you enable Spring’s AOT support.
 
 ---
-
-If you want, I can generate a small example `Account` entity, `AccountRepository`, and a `@DataJpaTest` unit test you can paste into your project.
