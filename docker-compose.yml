@@ -1,0 +1,244 @@
+services:
+
+
+#
+# REDIS FOR FRAUD DETECTION AND RATE LIMITING
+#
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+
+#
+# POSTGRES - All service database
+#
+
+
+#
+# ZOOKEEPER - Required by kafka
+#
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    restart: unless-stopped
+    networks:
+      - banking-network
+
+
+#
+# KAFKA - event-streaming
+#
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    restart: unless-stopped
+    networks:
+      - banking-network
+
+#
+# APP SERVICES
+#
+
+  # api-gateway:
+  #   image: ${AWS_ECR_REGISTRY}/api-gateway:latest
+  #   container_name: api-gateway
+  #   ports:
+  #     - "8090:8080"
+  #   environment:
+  #     GATEWAY_PORT: 8080
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+  #     AUTH_SERVICE_SERVER: https://authentication-service:8082
+  #     ACCOUNT_SERVER: https://account-service:8081
+  #     TRANSACTION_SERVER: http://transaction-service:8088
+  #     COMMUNITY_ACCOUNT_SERVER: http://community-account-service:8083
+  #     PAYMENT_SERVER: http://payment-service:8087
+  #     CUSTOMER_SERVER: http://customer-service:8084
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - kafka
+  #   restart: unless-stopped
+  #   networks:
+  #     - banking-network
+
+  account-service:
+    image: ${AWS_ECR_REGISTRY}/account-service:latest
+    container_name: account-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: ${POSTGRES_ACCOUNT_URL}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SECURITY_JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - kafka
+    restart: unless-stopped
+    networks:
+      - banking-network
+
+  authentication-service:
+    image: ${AWS_ECR_REGISTRY}/authentication-service:latest
+    container_name: authentication-service
+    ports:
+      - "8089:8089"
+    environment:
+      SPRING_DATASOURCE_URL: ${POSTGRES_AUTH_URL}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      AUTH_SERVICE_SERVER: 8089
+      SECURITY_JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - redis
+      - kafka
+    restart: unless-stopped
+    networks:
+      - banking-network
+
+  community-account-service:
+    image: ${AWS_ECR_REGISTRY}/community-account-service:latest
+    container_name: community-account-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: ${POSTGRES_COMMUNITY_ACCOUNT_URL}
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: community-account-service-group
+      SECURITY_JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - kafka
+    restart: unless-stopped
+    networks:
+      - banking-network
+
+  customer-service:
+    image: ${AWS_ECR_REGISTRY}/customer-service:latest
+    container_name: customer-service
+    ports:
+      - "8086:8086"
+    environment:
+      CUSTOMER_SERVER: 8086
+      SPRING_DATASOURCE_URL: ${POSTGRES_AUTH_URL}
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: customer-service-group
+      SECURITY_JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - kafka
+    restart: unless-stopped
+    networks:
+      - banking-network
+
+  # fraud-detection-service:
+  #   image: ${AWS_ECR_REGISTRY}/fraud-detection-service:latest
+  #   container_name: fraud-detection-service
+  #   ports:
+  #     - "8085:8085"
+  #   environment:
+  #     FRAUD_SERVICE_PORT: 8085
+  #     SPRING_DATASOURCE_URL: ${POSTGRES_FRAUD_DETECTION_URL}
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+  #     SPRING_REDIS_HOST: redis
+  #     SPRING_REDIS_PORT: 6379
+  #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - kafka
+  #   restart: unless-stopped
+  #   networks:
+  #     - banking-network
+
+  # notification-service:
+  #   image: ${AWS_ECR_REGISTRY}/notification-service:latest
+  #   container_name: notification-service
+  #   ports:
+  #     - "8086:8086"
+  #   environment:
+  #     NOTIFICATION_SERVICE_PORT: 8086
+  #     SPRING_DATASOURCE_URL: ${POSTGRES_NOTIFICATION_URL}
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+  #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  #   depends_on:
+  #     - postgres
+  #     - kafka
+  #   restart: unless-stopped
+  #   networks:
+  #     - banking-network
+
+  # payment-service:
+  #   image: ${AWS_ECR_REGISTRY}/payment-service:latest
+  #   container_name: payment-service
+  #   ports:
+  #     - "8087:8087"
+  #   environment:
+  #     PAYMENT_SERVICE_PORT: 8087
+  #     SPRING_DATASOURCE_URL: ${POSTGRES_PAYMENT_URL}
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+  #     SPRING_REDIS_HOST: redis
+  #     SPRING_REDIS_PORT: 6379
+  #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - kafka
+  #   restart: unless-stopped
+  #   networks:
+  #     - banking-network
+
+  # transaction-service:
+  #   image: ${AWS_ECR_REGISTRY}/transaction-service:latest
+  #   container_name: transaction-service
+  #   ports:
+  #     - "8088:8088"
+  #   environment:
+  #     TRANSACTION_SERVICE_PORT: 8088
+  #     SPRING_DATASOURCE_URL: ${POSTGRES_TRANSACTION_URL}
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+  #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  #   depends_on:
+  #     - postgres
+  #     - kafka
+  #   restart: unless-stopped
+  #   networks:
+  #     - banking-network
+
+volumes:
+  pgdata:
+
+networks:
+  banking-network:
+    driver: bridge
