@@ -35,6 +35,8 @@ build/
 # Env files
 .env*
 
+FRONTEND_AGENT_PROMPT.md
+
 # OS generated files
 .DS_Store
 Thumbs.db
