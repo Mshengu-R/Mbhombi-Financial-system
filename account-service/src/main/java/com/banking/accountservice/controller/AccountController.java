@@ -3,6 +3,7 @@ package com.banking.accountservice.controller;
 import com.banking.accountservice.service.AccountService;
 import com.banking.accountservice.dto.CreateAccountRequest;
 import com.banking.accountservice.dto.AccountResponse;
+import com.banking.accountservice.security.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +33,9 @@ import java.math.BigDecimal;
 @Slf4j
 @RequiredArgsConstructor
 public class AccountController {
-    
+
     private final AccountService accountService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping
     public ResponseEntity<AccountResponse> createAccount(
@@ -42,7 +44,7 @@ public class AccountController {
         @RequestBody
         CreateAccountRequest request) {
 
-        String creatorCustomerId = customerId(jwt);
+        String creatorCustomerId = jwtUtil.customerId(jwt);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(accountService.createAccount(creatorCustomerId, request));
     }
@@ -58,7 +60,7 @@ public class AccountController {
     public ResponseEntity<AccountResponse> getAccountByUserId(
             @AuthenticationPrincipal Jwt jwt
     ) {
-        String customerId = customerId(jwt);
+        String customerId = jwtUtil.customerId(jwt);
         return ResponseEntity.ok(accountService.getAccountByUserId(customerId));
     }
 
@@ -108,22 +110,5 @@ public class AccountController {
         return ResponseEntity.ok("Balance has been credited to the receiver successfully");
     }
         
-
-       private String customerId(Jwt jwt) {
-        if (jwt == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Authenticated customer is required");
-        }
-        try {
-            String customerId = jwt.getClaimAsString("customerId");
-            if (customerId == null || customerId.isBlank()) {
-                throw new IllegalArgumentException("customerId claim is missing");
-            }
-            return customerId.trim();
-        } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "JWT does not contain a valid customer ID", ex);
-        }
-    } 
 
 }

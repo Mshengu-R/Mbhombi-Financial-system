@@ -22,9 +22,7 @@ public class AuthorizationResponse {
 
     private String idno;
 
-    private String firstName;
-
-    private String secondName;
+    private String fullNames;
 
     private String title;
 

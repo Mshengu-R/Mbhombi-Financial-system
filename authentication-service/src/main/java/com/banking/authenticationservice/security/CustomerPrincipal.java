@@ -50,6 +50,10 @@ public final class CustomerPrincipal implements UserDetails {
         return email;
     }
 
+    public String getRole() {
+        return role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(

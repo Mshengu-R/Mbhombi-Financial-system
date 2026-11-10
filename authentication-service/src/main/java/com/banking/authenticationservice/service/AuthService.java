@@ -29,6 +29,7 @@ import com.banking.authenticationservice.entity.CustomerTitle;
 import com.banking.authenticationservice.repository.UserCredentialsRepository;
 import com.banking.authenticationservice.repository.ConsentRepository;
 import com.banking.authenticationservice.security.CustomerPrincipal;
+import com.banking.authenticationservice.states.AuthStates;
 
 @Service
 public class AuthService {
@@ -80,6 +81,7 @@ public String saveUser(Customer customer) {
     }
 
         customer.setUsername(customer.getEmail());
+        AuthStates.Context.from(customer).validateForRegistration();
         customer.setStatus(DEFAULT_CUSTOMER_STATUS);
         customer.setRole(DEFAULT_CUSTOMER_ROLE);
 
@@ -162,6 +164,10 @@ public String saveUser(Customer customer) {
          * blindly trusting the username supplied in the request.
          */
         CustomerPrincipal principal = (CustomerPrincipal) authentication.getPrincipal();
+        Customer persistedCustomer = repository.findByUsername(principal.getUsername())
+                .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
+        AuthStates.Context.from(persistedCustomer).validateForAuthentication();
+
         log.info("Authenticated customer username={} customerId={}",
                 principal.getUsername(), principal.getCustomerId());
         return jwtService.generateToken(
@@ -196,8 +202,7 @@ public String saveUser(Customer customer) {
         customer.setUsername(customer.getEmail());
         customer.setPassword(request.getPassword());
         customer.setFullNames(request.getFullNames());
-        customer.setSecondName(request.getSecondName());
-        // customer.setName(request.getName());
+        // customer.setSecondName(request.getSecondName())
         customer.setDateOfBirth(request.getDateOfBirth());
         customer.setSurname(request.getSurname());
         customer.setIdNumber(request.getIdno());

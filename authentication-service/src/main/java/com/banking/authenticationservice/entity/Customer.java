@@ -45,18 +45,15 @@ public class Customer implements UserDetails{
     }
 
 
-@Id
-@GeneratedValue(strategy = GenerationType.UUID)
-private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
     
     @Column(nullable = false)
     private String fullNames;
     
-    @Column(nullable = true)
-    private String secondName;
-    
-    // @Column(nullable = false)
-    // private String name;
+    // @Column(nullable = true)
+    // private String secondName;
 
     @Column(nullable = false)
     private String surname;

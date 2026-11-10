@@ -143,7 +143,7 @@ public class AccountService {
     public void blockAccount(String accountNumber) {
         log.info("Blocking account={}", accountNumber);
         Account account = findAccountByNumber(accountNumber);
-        account.setStatus(AccountStatus.BLOCKED);
+        account.getState().block(account);
         accountRepository.save(account);
     }
 
@@ -151,8 +151,7 @@ public class AccountService {
     public void unblockAccount(String accountNumber) {
         log.info("Unblocking account={}", accountNumber);
         Account account = findAccountByNumber(accountNumber);
-        account.setStatus(AccountStatus.ACTIVE);
-        account.setUpdatedAt(account.getUpdatedAt());
+        account.getState().unblock(account);
         accountRepository.save(account);
     }
 
@@ -162,11 +161,8 @@ public class AccountService {
         log.info("Deducting amount {} from account={}", amount, accountNumber);
         Account account = findAccountByNumber(accountNumber);
 
-        validateAccountActive(accountNumber, account);
         validateAmount(amount, "Deduction amount must be greater than zero.");
-        validateSufficientBalance(account, amount);
-
-        account.setBalance(account.getBalance().subtract(amount));
+        account.getState().withdraw(account, amount);
         accountRepository.save(account);
         log.info("Deduction successful. New balance for account {} is {}", accountNumber, account.getBalance());
     }
@@ -178,33 +174,15 @@ public class AccountService {
         Account account = findAccountByNumber(accountNumber);
         validateAmount(amount, "Credit amount must be greater than zero.");
 
-        account.setBalance(account.getBalance().add(amount));
+        account.getState().deposit(account, amount);
         accountRepository.save(account);
         log.info("Credit successful. New balance for account {} is {}", accountNumber, account.getBalance());
-    }
-
-    // When transaction is made this method is called to check whether the account exists or not
-    private void validateAccountActive(String accountNumber, Account account) {
-        if (account.getStatus() != AccountStatus.ACTIVE) {
-            log.warn("Attempted operation on non-active account={}", accountNumber);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Account \"" + accountNumber + "\" is not active. Contact support if this is unexpected.");
-        }
     }
 
     // Check amount which the customer inteds to send 
     private void validateAmount(BigDecimal amount, String errorMessage) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
-        }
-    }
-
-    // Check whehter the amount sent available in the user's account
-    private void validateSufficientBalance(Account account, BigDecimal amount) {
-        if (account.getBalance().compareTo(amount) < 0) {
-            log.warn("Insufficient funds for account={} currentBalance={}", account.getAccountNumber(), account.getBalance());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Insufficient funds for account " + account.getAccountNumber());
         }
     }
 

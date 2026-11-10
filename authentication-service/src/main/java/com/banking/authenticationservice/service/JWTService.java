@@ -224,6 +224,7 @@ public class JWTService {
 
         return Jwts.parser()
                 .verifyWith(signingKey)
+                .clock(() -> Date.from(clock.instant()))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

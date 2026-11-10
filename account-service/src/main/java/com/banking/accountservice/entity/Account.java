@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.banking.accountservice.states.AccountState;
 
 @Entity
 @Table(name = "accounts")
@@ -48,6 +49,10 @@ public class Account {
 
     @Column(nullable = false)
     private AccountStatus status;
+
+    public AccountState getState() {
+        return AccountState.from(status);
+    }
 
     @Column(nullable = false)
     private String currency;
